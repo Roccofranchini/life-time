@@ -1,0 +1,49 @@
+{
+  "entries": [
+    {
+      "id": "sunia-bologna",
+      "provincia": "BO",
+      "tipo": "sindacato_inquilini",
+      "nome": "SUNIA Bologna — Sindacato Unitario Nazionale Inquilini",
+      "url": "https://www.suniaer.it/bologna/",
+      "tag": ["affitto", "sfratto", "diritti", "casa"],
+      "descrizione": "Tutela legale inquilini, sportello consulenza affitti e morosità incolpevole, assistenza in caso di sfratto."
+    },
+    {
+      "id": "cdl-milano",
+      "provincia": "MI",
+      "tipo": "sindacato_lavoro",
+      "nome": "Camera del Lavoro Metropolitana di Milano (CGIL)",
+      "url": "https://www.cgil.milano.it",
+      "tag": ["lavoro", "busta-paga", "vertenze", "diritti"],
+      "descrizione": "Sportello vertenze individuali e collettive, consulenza sulla busta paga, assistenza su contratti precari e stage."
+    },
+    {
+      "id": "sunia-roma",
+      "provincia": "RM",
+      "tipo": "sindacato_inquilini",
+      "nome": "SUNIA Roma e Lazio",
+      "url": "https://www.sunia.it/suniaroma/",
+      "tag": ["affitto", "edilizia-popolare", "sfratto"],
+      "descrizione": "Tutela inquilini nel Lazio, sportelli casa, consulenza su canoni concordati ed edilizia residenziale pubblica."
+    },
+    {
+      "id": "unione-inquilini-napoli",
+      "provincia": "NA",
+      "tipo": "sindacato_inquilini",
+      "nome": "Unione Inquilini Napoli",
+      "url": "https://www.unioneinquilini.it/le-sedi-unione-inquilini/",
+      "tag": ["affitto", "sfratto", "emergenza-abitativa"],
+      "descrizione": "Sportello anti-sfratto, autorecupero, lotta all'emergenza abitativa e al caro-affitti nell'area metropolitana."
+    },
+    {
+      "id": "fiom-torino",
+      "provincia": "TO",
+      "tipo": "sindacato_lavoro",
+      "nome": "FIOM-CGIL Torino",
+      "url": "https://fiompiemonte.it/",
+      "tag": ["metalmeccanici", "fabbrica", "vertenze", "sicurezza"],
+      "descrizione": "Sindacato dei metalmeccanici di Torino, vertenze contrattuali, sicurezza sul lavoro, rappresentanza delle RSU."
+    }
+  ]
+}

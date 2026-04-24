@@ -1,0 +1,315 @@
+/* Tempo di Vita — design tokens globali */
+/* Fonte: DESIGN_SYSTEM.md */
+
+:root {
+  /* Fondamentali */
+  --tdv-bg: #0a0a08; /* nero quasi-nero con tonalità calda */
+  --tdv-ink: #f0ede6; /* bianco carta, non bianco puro */
+  --tdv-ink2: #a09e96; /* testo secondario */
+  --tdv-ink3: #5a5850; /* testo terziario, bordi sottili */
+
+  /* Accenti */
+  --tdv-red: #c8291e; /* rosso principale — resistenza */
+  --tdv-red2: #e03328; /* rosso hover */
+  --tdv-red-dim: rgba(200, 41, 30, 0.15); /* sfondo sottile rosso */
+  --tdv-green: #1d9e75; /* tempo libero reale — speranza */
+
+  /* Struttura */
+  --tdv-grid: rgba(240, 237, 230, 0.04);
+  --tdv-border: rgba(240, 237, 230, 0.10);
+  --tdv-border2: rgba(240, 237, 230, 0.06);
+
+  /* Segmenti torta */
+  --tdv-seg-sopravvivenza: var(--tdv-red);
+  --tdv-seg-stato: var(--tdv-ink3);
+  --tdv-seg-capitale: #3d3d38;
+  --tdv-seg-salario-residuo: #8a3a1e; /* terra bruciata: parte del salario che ti resta */
+  --tdv-seg-sonno: #1a1a17; /* quasi-nero: l'8h inevitabile */
+  --tdv-seg-vita-biologica: #4a3a28; /* marrone: riproduzione sociale */
+  --tdv-seg-libero: var(--tdv-green);
+
+  /* Alias per tooltip (variazioni richieste dal design) */
+  --tdv-paper-2: #14140f;
+  --tdv-ink-2: var(--tdv-ink2);
+  --tdv-rosso: var(--tdv-red);
+
+  /* Font */
+  --tdv-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
+  --tdv-serif: 'Playfair Display', 'Times New Roman', serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  background: var(--tdv-bg);
+  color: var(--tdv-ink);
+  font-family: var(--tdv-mono);
+  font-size: 13px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  min-height: 100vh;
+  background-color: var(--tdv-bg);
+  background-image:
+    linear-gradient(var(--tdv-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--tdv-grid) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+a {
+  color: var(--tdv-ink);
+  text-decoration: none;
+  border-bottom: 1px solid var(--tdv-border);
+  transition: color 0.2s, border-color 0.2s;
+}
+a:hover {
+  color: var(--tdv-red);
+  border-color: var(--tdv-red);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--tdv-mono);
+  font-weight: 600;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+  color: inherit;
+  border-radius: 0;
+}
+
+/* Bordi / separatori editoriali — 0 border-radius ovunque */
+.tdv-border-top {
+  border-top: 1px solid var(--tdv-border);
+}
+.tdv-border-bottom {
+  border-bottom: 1px solid var(--tdv-border);
+}
+.tdv-border-left-red {
+  border-left: 2px solid var(--tdv-red);
+}
+
+/* Label uppercase rosso (section label) */
+.tdv-section-label {
+  font-family: var(--tdv-mono);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--tdv-red);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.tdv-section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--tdv-red-dim);
+}
+
+/* Stella a 5 punte (CSS puro) */
+.tdv-star {
+  width: 10px;
+  height: 10px;
+  background: var(--tdv-red);
+  clip-path: polygon(
+    50% 0%,
+    61% 35%,
+    98% 35%,
+    68% 57%,
+    79% 91%,
+    50% 70%,
+    21% 91%,
+    32% 57%,
+    2% 35%,
+    39% 35%
+  );
+}
+.tdv-star.dim {
+  background: var(--tdv-ink3);
+}
+
+/* Triangolo pulsante (eyebrow) */
+.tdv-triangle {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background: var(--tdv-red);
+  clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+  animation: tdv-pulse-triangle 2s ease-in-out infinite;
+}
+@keyframes tdv-pulse-triangle {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(0.8);
+  }
+}
+
+/* Ticker rosso scorrevole */
+.tdv-ticker {
+  background: var(--tdv-red);
+  color: #fff;
+  font-family: var(--tdv-mono);
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 7px 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.tdv-ticker-inner {
+  display: inline-block;
+  animation: tdv-ticker-scroll 25s linear infinite;
+  padding-left: 100%;
+}
+@keyframes tdv-ticker-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+/* Nav bar */
+.tdv-nav {
+  display: flex;
+  border-bottom: 1px solid var(--tdv-border);
+  font-family: var(--tdv-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--tdv-ink3);
+}
+.tdv-nav-item {
+  padding: 12px 20px;
+  border-right: 1px solid var(--tdv-border);
+  cursor: pointer;
+  transition: color 0.2s, background 0.2s;
+  white-space: nowrap;
+}
+.tdv-nav-item:hover {
+  color: var(--tdv-ink);
+  background: rgba(255, 255, 255, 0.03);
+}
+.tdv-nav-item.active {
+  color: var(--tdv-red);
+  border-bottom: 2px solid var(--tdv-red);
+  margin-bottom: -1px;
+}
+
+/* Input / select editoriali */
+.tdv-input,
+.tdv-select {
+  width: 100%;
+  background: transparent;
+  border: 1px solid var(--tdv-border);
+  color: var(--tdv-ink);
+  font-family: var(--tdv-mono);
+  font-size: 13px;
+  padding: 10px 14px;
+  appearance: none;
+  transition: border-color 0.2s;
+}
+.tdv-input:focus,
+.tdv-select:focus {
+  outline: none;
+  border-color: var(--tdv-red);
+}
+.tdv-select option {
+  background: #111;
+  color: var(--tdv-ink);
+}
+
+/* Bottone primario */
+.tdv-btn-primary {
+  width: 100%;
+  background: var(--tdv-red);
+  color: #fff;
+  border: none;
+  font-family: var(--tdv-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 14px 20px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.tdv-btn-primary:hover {
+  background: var(--tdv-red2);
+}
+.tdv-btn-ghost {
+  background: transparent;
+  color: var(--tdv-ink2);
+  border: 1px solid var(--tdv-border);
+  font-family: var(--tdv-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 14px 20px;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+}
+.tdv-btn-ghost:hover {
+  border-color: var(--tdv-ink3);
+  color: var(--tdv-ink);
+}
+
+/* Stat card */
+.tdv-stat-n {
+  font-family: var(--tdv-serif);
+  font-style: italic;
+  font-weight: 700;
+  font-size: 32px;
+  color: var(--tdv-ink);
+  line-height: 1;
+}
+.tdv-stat-n.red {
+  color: var(--tdv-red);
+}
+.tdv-stat-n.green {
+  color: var(--tdv-green);
+}
+.tdv-stat-n.dim {
+  color: var(--tdv-ink3);
+}
+.tdv-stat-l {
+  font-family: var(--tdv-mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  color: var(--tdv-ink3);
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+/* Privacy note */
+.tdv-privacy-note {
+  font-family: var(--tdv-mono);
+  font-size: 9px;
+  color: var(--tdv-ink3);
+  text-align: center;
+  margin-top: 10px;
+  line-height: 1.6;
+}

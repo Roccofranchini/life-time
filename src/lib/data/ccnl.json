@@ -1,0 +1,57 @@
+{
+  "settori": [
+    {
+      "id": "commercio",
+      "nome": "Commercio (CCNL Confcommercio)",
+      "fonte": "https://www.confcommercio.it/-/ccnl-terziario-contratto",
+      "aggiornato": "2024-03-01",
+      "livelli": [
+        { "livello": "1", "descrizione": "Quadro", "lordo_mensile": 2850 },
+        { "livello": "2", "descrizione": "1ª categoria", "lordo_mensile": 2340 },
+        { "livello": "3", "descrizione": "2ª categoria", "lordo_mensile": 2010 },
+        { "livello": "4", "descrizione": "3ª categoria", "lordo_mensile": 1780 },
+        { "livello": "5", "descrizione": "4ª categoria", "lordo_mensile": 1620 }
+      ]
+    },
+    {
+      "id": "metalmeccanici",
+      "nome": "Metalmeccanici (CCNL Federmeccanica / FIM-FIOM-UILM)",
+      "fonte": "https://www.fiom-cgil.it/net/industria-privata-e-installazione-impianti/ccnl-federmeccanica",
+      "aggiornato": "2024-06-01",
+      "livelli": [
+        { "livello": "1", "descrizione": "Quadro direttivo", "lordo_mensile": 2980 },
+        { "livello": "2", "descrizione": "5° livello superiore", "lordo_mensile": 2410 },
+        { "livello": "3", "descrizione": "5° livello", "lordo_mensile": 2150 },
+        { "livello": "4", "descrizione": "4° livello", "lordo_mensile": 1960 },
+        { "livello": "5", "descrizione": "3° livello", "lordo_mensile": 1820 },
+        { "livello": "6", "descrizione": "1°/2° livello", "lordo_mensile": 1680 }
+      ]
+    },
+    {
+      "id": "logistica",
+      "nome": "Logistica, Trasporto Merci e Spedizione",
+      "fonte": "https://www.filtcgil.it/terra/27-contratti-terra/contratti-trasporto-merci.html",
+      "aggiornato": "2024-03-01",
+      "livelli": [
+        { "livello": "1", "descrizione": "Quadro", "lordo_mensile": 2780 },
+        { "livello": "2", "descrizione": "3° livello super", "lordo_mensile": 2290 },
+        { "livello": "3", "descrizione": "3° livello", "lordo_mensile": 2060 },
+        { "livello": "4", "descrizione": "4° livello junior", "lordo_mensile": 1870 },
+        { "livello": "5", "descrizione": "5°/6° livello", "lordo_mensile": 1720 }
+      ]
+    },
+    {
+      "id": "ristorazione",
+      "nome": "Ristorazione e Pubblici Esercizi (CCNL FIPE)",
+      "fonte": "https://www.fipe.it/category/area-lavoro/testo-ccnl-fipe/",
+      "aggiornato": "2024-01-01",
+      "livelli": [
+        { "livello": "1", "descrizione": "Quadro A", "lordo_mensile": 2620 },
+        { "livello": "2", "descrizione": "2° livello", "lordo_mensile": 2180 },
+        { "livello": "3", "descrizione": "3° livello", "lordo_mensile": 1890 },
+        { "livello": "4", "descrizione": "4° livello", "lordo_mensile": 1700 },
+        { "livello": "5", "descrizione": "5°/6° livello", "lordo_mensile": 1560 }
+      ]
+    }
+  ]
+}

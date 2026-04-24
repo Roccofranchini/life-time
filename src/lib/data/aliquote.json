@@ -1,0 +1,58 @@
+{
+  "anno": 2026,
+  "fonte": "https://www.agenziaentrate.gov.it/portale/imposta-sul-reddito-delle-persone-fisiche-irpef-/aliquote-e-calcolo-dell-irpef",
+  "nota_irpef": "Aliquote aggiornate alla Legge di Bilancio 2026 (L. 199/2025): secondo scaglione ridotto dal 35% al 33%. Primo e terzo scaglione invariati rispetto al 2024 (D.Lgs. 216/2023).",
+  "irpef": {
+    "scaglioni": [
+      { "da": 0, "a": 28000, "aliquota": 0.23 },
+      { "da": 28001, "a": 50000, "aliquota": 0.33 },
+      { "da": 50001, "a": null, "aliquota": 0.43 }
+    ]
+  },
+  "inps": {
+    "dipendente": {
+      "aliquota": 0.0919,
+      "aliquota_massimale": 0.1019,
+      "massimale_annuo": 113520
+    },
+    "partiva_gestione_separata": {
+      "aliquota": 0.2623
+    }
+  },
+  "addizionali_regionali": {
+    "abruzzo": 0.0173,
+    "basilicata": 0.0123,
+    "calabria": 0.0203,
+    "campania": 0.0203,
+    "emilia-romagna": 0.0133,
+    "friuli-venezia-giulia": 0.0123,
+    "lazio": 0.0333,
+    "liguria": 0.0173,
+    "lombardia": 0.0173,
+    "marche": 0.0173,
+    "molise": 0.0233,
+    "piemonte": 0.0262,
+    "puglia": 0.0203,
+    "sardegna": 0.0123,
+    "sicilia": 0.0143,
+    "toscana": 0.0173,
+    "trentino-alto-adige": 0.0123,
+    "umbria": 0.0173,
+    "valle-d-aosta": 0.0123,
+    "veneto": 0.0123
+  },
+  "addizionali_comunali_media": 0.008,
+  "margine_medio_settore_fonte": "ISTAT, Conti economici delle imprese e dei gruppi di imprese — anno 2023 (pubblicazione ottobre 2025). Indicatore: MOL/Valore aggiunto a prezzi base, per divisione ATECO. Interpretazione: quota del valore aggiunto non assegnata al lavoro dipendente — proxy settoriale del profit share e, in cornice marxiana, del saggio di sfruttamento.",
+  "margine_medio_settore_url": "https://www.istat.it/wp-content/uploads/2025/10/Report-Conti-economici-imprese-e-gruppi_2023.pdf",
+  "margine_medio_settore": {
+    "commercio": 0.30,
+    "metalmeccanici": 0.38,
+    "logistica": 0.35,
+    "ristorazione": 0.22,
+    "terziario": 0.30,
+    "edilizia": 0.30,
+    "pulizie": 0.20,
+    "sanita-privata": 0.35,
+    "default": 0.32
+  }
+}
