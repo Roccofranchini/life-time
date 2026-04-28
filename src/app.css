@@ -193,6 +193,12 @@ textarea {
   }
 }
 
+/* Dati-aperti: flusso dati animato sugli archi del grafo */
+@keyframes tdv-dash-flow {
+  from { stroke-dashoffset: 0; }
+  to   { stroke-dashoffset: -40; }
+}
+
 /* Nav bar */
 .tdv-nav {
   display: flex;
