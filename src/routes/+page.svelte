@@ -85,6 +85,13 @@
     return Math.round(annuo);
   });
 
+  // ─── Wizard step metadata (per stepper) ─────────────────────────────
+  const wizardSteps: { n: 1 | 2 | 3; label: string }[] = [
+    { n: 1, label: 'Città' },
+    { n: 2, label: 'Lavoro' },
+    { n: 3, label: 'Conferma' }
+  ];
+
   // ─── Handlers ───────────────────────────────────────────────────────
   function selezionaProvincia(p: ProvinciaEntry) {
     provinciaSelezionata = p;
@@ -208,7 +215,43 @@
   <div class="main-col">
     <div class="tdv-section-label">
       <span class="tdv-star"></span>
-      Il tuo profilo · passo {step} di 3
+      Il tuo profilo
+    </div>
+
+    <!-- Stepper editoriale: 3 segmenti, indietro consentito sui completati -->
+    <ol class="stepper" aria-label="Progresso compilazione">
+      {#each wizardSteps as s (s.n)}
+        {@const isDone = step > s.n}
+        {@const isCurrent = step === s.n}
+        <li
+          class="stepper-item"
+          class:done={isDone}
+          class:current={isCurrent}
+          aria-current={isCurrent ? 'step' : undefined}
+        >
+          <button
+            type="button"
+            onclick={() => isDone && vaiStep(s.n)}
+            disabled={!isDone}
+            aria-label="Passo {s.n}: {s.label}{isDone ? ' (completato)' : isCurrent ? ' (in corso)' : ''}"
+          >
+            <span class="step-num">0{s.n}</span>
+            <span class="step-label">{s.label}</span>
+            <span class="step-state" aria-hidden="true">
+              {#if isDone}
+                <span class="step-check">✓</span>
+              {:else if isCurrent}
+                <span class="tdv-triangle"></span>
+              {:else}
+                <span class="step-circle"></span>
+              {/if}
+            </span>
+          </button>
+        </li>
+      {/each}
+    </ol>
+    <div class="stepper-progress" aria-hidden="true">
+      <div class="stepper-progress-bar" style:width="{(step / 3) * 100}%"></div>
     </div>
 
     <!-- Step 1: Provincia -->
@@ -512,6 +555,105 @@
     padding: 28px 24px;
   }
 
+  /* ─── STEPPER ─── */
+  .stepper {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-top: 1px solid var(--tdv-border);
+    border-bottom: 1px solid var(--tdv-border);
+    margin-bottom: 0;
+  }
+  .stepper-item {
+    border-right: 1px solid var(--tdv-border);
+  }
+  .stepper-item:last-child {
+    border-right: none;
+  }
+  .stepper-item button {
+    width: 100%;
+    background: transparent;
+    border: none;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: not-allowed;
+    text-align: left;
+    color: var(--tdv-ink3);
+    font-family: var(--tdv-mono);
+    transition: color 0.2s, background 0.2s;
+  }
+  .stepper-item.done button {
+    cursor: pointer;
+    color: var(--tdv-ink2);
+  }
+  .stepper-item.done button:hover,
+  .stepper-item.done button:focus-visible {
+    background: rgba(200, 41, 30, 0.05);
+    color: var(--tdv-red);
+    outline: none;
+  }
+  .stepper-item.current button {
+    color: var(--tdv-red);
+    cursor: default;
+    background: rgba(200, 41, 30, 0.04);
+  }
+  .step-num {
+    font-family: var(--tdv-serif);
+    font-style: italic;
+    font-weight: 700;
+    font-size: 22px;
+    line-height: 1;
+    flex-shrink: 0;
+    color: var(--tdv-ink3);
+  }
+  .stepper-item.done .step-num {
+    color: var(--tdv-red);
+  }
+  .stepper-item.current .step-num {
+    color: var(--tdv-red);
+  }
+  .step-label {
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    flex: 1;
+  }
+  .step-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+  }
+  .step-check {
+    color: var(--tdv-red);
+    font-size: 11px;
+    line-height: 1;
+  }
+  .step-circle {
+    width: 6px;
+    height: 6px;
+    border: 1px solid var(--tdv-ink3);
+    border-radius: 50%;
+  }
+
+  /* Linea di progressione sotto i 3 segmenti */
+  .stepper-progress {
+    height: 2px;
+    background: var(--tdv-border);
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .stepper-progress-bar {
+    height: 100%;
+    background: var(--tdv-red);
+    transition: width 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
   .wizard-step {
     margin-bottom: 20px;
   }
@@ -708,6 +850,34 @@
     }
     .manifesto {
       grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 560px) {
+    /* Stepper verticale: barra rossa a sinistra invece di colonne */
+    .stepper {
+      grid-template-columns: 1fr;
+      border-top: none;
+    }
+    .stepper-item {
+      border-right: none;
+      border-bottom: 1px solid var(--tdv-border);
+      border-left: 2px solid transparent;
+    }
+    .stepper-item:last-child {
+      border-bottom: none;
+    }
+    .stepper-item.current {
+      border-left-color: var(--tdv-red);
+    }
+    .stepper-item.done {
+      border-left-color: var(--tdv-red-dim);
+    }
+    .stepper-item button {
+      padding: 10px 14px;
+    }
+    .step-num {
+      font-size: 18px;
     }
   }
 </style>
