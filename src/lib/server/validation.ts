@@ -4,7 +4,8 @@
 
 import type { FiscalInput, TipoContratto } from '$lib/types';
 
-const TIPI_CONTRATTO: readonly TipoContratto[] = ['indeterminato', 'parttime', 'partiva'];
+// 'nero' è gestito client-side: non arriva mai all'API.
+const TIPI_CONTRATTO: readonly TipoContratto[] = ['indeterminato', 'parttime', 'partiva', 'dottorato'];
 
 export interface ValidationResult<T> {
   ok: boolean;
