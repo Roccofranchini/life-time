@@ -95,6 +95,21 @@ function aliquotaRegionale(regione: string): number {
 export function calcola_netto(input: FiscalInput): FiscalOutput {
   const { lordo_annuo, tipo_contratto, regione } = input;
 
+  // Borsa di dottorato: esente IRPEF ex art. 4, L. 476/1984.
+  // Nessun contributo INPS sul percorso formativo standard (circ. INPS 88/2017).
+  if (tipo_contratto === 'dottorato') {
+    return {
+      netto_mensile: lordo_annuo / 12,
+      netto_annuo: lordo_annuo,
+      irpef_annua: 0,
+      addizionale_regionale: 0,
+      addizionale_comunale: 0,
+      contributi_inps: 0,
+      cuneo_fiscale_percentuale: 0,
+      margine_errore: MARGINE_ERRORE
+    };
+  }
+
   const contributi_inps =
     tipo_contratto === 'partiva'
       ? calcolaInpsPartiva(lordo_annuo)

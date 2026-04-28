@@ -10,7 +10,7 @@
   import Globe from '$lib/components/Globe.svelte';
   import provinceData from '$lib/data/province.json';
   import ccnlData from '$lib/data/ccnl.json';
-  import { calcola_netto } from '$lib/engine/fiscal';
+  import { calcola_netto, MARGINE_ERRORE } from '$lib/engine/fiscal';
   import {
     profilo,
     risultatoFiscale,
@@ -48,6 +48,7 @@
   let tipoContratto = $state<TipoContratto>('indeterminato');
   let percentualePt = $state<number>(60); // percento, solo se parttime
   let oreSettimanali = $state<number>(40);
+  let pagaMensileNetta = $state<number>(0); // solo per tipo_contratto === 'nero'
 
   // stato globale richiesta
   let inCalcolo = $state(false);
@@ -75,20 +76,20 @@
     settoreCorrente?.livelli.find((l) => l.livello === livello) ?? null
   );
 
-  // CCNL dà mensile → annuo = mensile * 13 (13a).
-  // Per compatibilità con simulatori pubblici usiamo 13 come default.
+  // CCNL dà mensile → annuo = mensile × mensilita (default 13, dottorato usa 12).
   const lordoAnnuoCalcolato: number = $derived.by(() => {
+    if (tipoContratto === 'nero') return pagaMensileNetta * 12;
     if (!livelloCorrente) return 0;
-    let annuo = livelloCorrente.lordo_mensile * 13;
-    if (tipoContratto === 'parttime') {
-      annuo = annuo * (percentualePt / 100);
-    }
+    const mensilita = settoreCorrente?.mensilita ?? 13;
+    let annuo = livelloCorrente.lordo_mensile * mensilita;
+    if (tipoContratto === 'parttime') annuo = annuo * (percentualePt / 100);
     return Math.round(annuo);
   });
 
-  // Anteprima netto calcolata client-side (stesso engine puro del server).
-  // Usata nel riepilogo step 3 per dare immediato un numero concreto.
+  // Anteprima netto client-side: per nero è la paga dichiarata; dottorato è
+  // esente IRPEF quindi netto = lordo; altri usano l'engine fiscale.
   const nettoMensileStimato: number = $derived.by(() => {
+    if (tipoContratto === 'nero') return pagaMensileNetta;
     if (!provinciaSelezionata || lordoAnnuoCalcolato <= 0) return 0;
     try {
       const out = calcola_netto({
@@ -103,11 +104,22 @@
     }
   });
 
-  // Ore di lavoro contrattuali stimate al mese (CCNL standard 40h/sett × 4.33).
+  // Ore di lavoro contrattuali stimate al mese (standard 40h/sett × 4.33).
   const oreLavoroMensili: number = $derived.by(() => {
     const oreFull = oreSettimanali * 4.33;
     if (tipoContratto === 'parttime') return Math.round(oreFull * (percentualePt / 100));
     return Math.round(oreFull);
+  });
+
+  // Diritti non goduti stimati per lavoro a nero (uso annualizzato).
+  const dirittiNonGoduti = $derived.by(() => {
+    if (tipoContratto !== 'nero' || pagaMensileNetta <= 0) return null;
+    const annuo = pagaMensileNetta * 12;
+    return {
+      tfr: Math.round(annuo * 0.0833),        // TFR: 8.33% del lordo equivalente
+      ferie: Math.round((pagaMensileNetta / 21) * 26), // 26 gg retribuiti non pagati
+      inpsAnnuo: Math.round(annuo * 0.0919)   // contributi pensione non versati
+    };
   });
 
   // ─── Wizard step metadata (per stepper) ─────────────────────────────
@@ -133,32 +145,69 @@
   }
 
   function validaStep2(): boolean {
+    if (tipoContratto === 'nero') return pagaMensileNetta > 0 && oreSettimanali > 0;
     if (!livelloCorrente) return false;
-    if (tipoContratto === 'parttime' && (percentualePt <= 0 || percentualePt > 100))
-      return false;
+    if (tipoContratto === 'parttime' && (percentualePt <= 0 || percentualePt > 100)) return false;
     return true;
   }
 
   async function inviaCalcolo() {
-    if (!provinciaSelezionata || !livelloCorrente) return;
+    if (!provinciaSelezionata) return;
+    if (tipoContratto !== 'nero' && !livelloCorrente) return;
 
     inCalcolo = true;
     erroreCalcolo = null;
 
-    const profiloCorrente: ProfiloUtente = {
-      provincia: provinciaSelezionata.codice,
-      nome_provincia: provinciaSelezionata.nome,
-      regione: provinciaSelezionata.regione,
-      comune_capoluogo: provinciaSelezionata.nome.toLowerCase(),
-      settore_id: settoreId,
-      settore_nome: settoreCorrente?.nome ?? '',
-      livello,
-      tipo_contratto: tipoContratto,
-      ...(tipoContratto === 'parttime' ? { percentuale_parttime: percentualePt / 100 } : {}),
-      ore_settimanali_contratto: oreSettimanali
-    };
-
     try {
+      // ── Lavoro a nero: fiscal client-side, solo costi da API ─────────
+      if (tipoContratto === 'nero') {
+        const respCosti = await fetch(`/api/costi/${provinciaSelezionata.codice}`);
+        if (!respCosti.ok) throw new Error(await respCosti.text() || `Errore costi (${respCosti.status})`);
+        const costi: CostiVita = await respCosti.json();
+
+        const fiscale: FiscalOutput = {
+          netto_mensile: pagaMensileNetta,
+          netto_annuo: pagaMensileNetta * 12,
+          irpef_annua: 0,
+          addizionale_regionale: 0,
+          addizionale_comunale: 0,
+          contributi_inps: 0,
+          cuneo_fiscale_percentuale: 0,
+          margine_errore: MARGINE_ERRORE
+        };
+
+        profilo.set({
+          provincia: provinciaSelezionata.codice,
+          nome_provincia: provinciaSelezionata.nome,
+          regione: provinciaSelezionata.regione,
+          comune_capoluogo: provinciaSelezionata.nome.toLowerCase(),
+          settore_id: 'nero',
+          settore_nome: 'Lavoro non regolamentato',
+          livello: '-',
+          tipo_contratto: 'nero',
+          ore_settimanali_contratto: oreSettimanali,
+          paga_mensile_netta: pagaMensileNetta
+        });
+        risultatoFiscale.set(fiscale);
+        costiProvincia.set(costi);
+        await goto('/report');
+        return;
+      }
+
+      // ── Tutti gli altri contratti: flusso normale ────────────────────
+      const profiloCorrente: ProfiloUtente = {
+        provincia: provinciaSelezionata.codice,
+        nome_provincia: provinciaSelezionata.nome,
+        regione: provinciaSelezionata.regione,
+        comune_capoluogo: provinciaSelezionata.nome.toLowerCase(),
+        settore_id: settoreId,
+        settore_nome: settoreCorrente?.nome ?? '',
+        livello,
+        tipo_contratto: tipoContratto,
+        ...(tipoContratto === 'parttime' ? { percentuale_parttime: percentualePt / 100 } : {}),
+        ore_settimanali_contratto: oreSettimanali
+      };
+
       const [respFisc, respCosti] = await Promise.all([
         fetch('/api/calcola', {
           method: 'POST',
@@ -168,22 +217,14 @@
             tipo_contratto: tipoContratto,
             regione: profiloCorrente.regione,
             comune: profiloCorrente.comune_capoluogo,
-            ...(tipoContratto === 'parttime'
-              ? { percentuale_parttime: percentualePt / 100 }
-              : {})
+            ...(tipoContratto === 'parttime' ? { percentuale_parttime: percentualePt / 100 } : {})
           })
         }),
         fetch(`/api/costi/${provinciaSelezionata.codice}`)
       ]);
 
-      if (!respFisc.ok) {
-        const msg = await respFisc.text();
-        throw new Error(msg || `Errore calcolo (${respFisc.status})`);
-      }
-      if (!respCosti.ok) {
-        const msg = await respCosti.text();
-        throw new Error(msg || `Errore costi (${respCosti.status})`);
-      }
+      if (!respFisc.ok) throw new Error(await respFisc.text() || `Errore calcolo (${respFisc.status})`);
+      if (!respCosti.ok) throw new Error(await respCosti.text() || `Errore costi (${respCosti.status})`);
 
       const fiscale: FiscalOutput = await respFisc.json();
       const costi: CostiVita = await respCosti.json();
@@ -191,7 +232,6 @@
       profilo.set(profiloCorrente);
       risultatoFiscale.set(fiscale);
       costiProvincia.set(costi);
-
       await goto('/report');
     } catch (err) {
       erroreCalcolo = err instanceof Error ? err.message : 'Errore sconosciuto';
@@ -328,71 +368,143 @@
       </button>
     {/if}
 
-    <!-- Step 2: Settore / livello / contratto -->
+    <!-- Step 2: contratto — flusso normale o lavoro a nero -->
     {#if step === 2}
-      <div class="wizard-step">
-        <label for="settore-sel" class="wizard-label">Settore CCNL</label>
-        <select
-          id="settore-sel"
-          class="tdv-select"
-          bind:value={settoreId}
-          onchange={() => {
-            const primo = settoreCorrente?.livelli[0];
-            if (primo) livello = primo.livello;
-          }}
-        >
-          {#each settori as s (s.id)}
-            <option value={s.id}>{s.nome}</option>
-          {/each}
-        </select>
-      </div>
-
-      <div class="wizard-step">
-        <label for="livello-sel" class="wizard-label">Livello / inquadramento</label>
-        <select id="livello-sel" class="tdv-select" bind:value={livello}>
-          {#each settoreCorrente?.livelli ?? [] as l (l.livello)}
-            <option value={l.livello}>
-              Livello {l.livello} · {l.descrizione} · {l.lordo_mensile}€/mese
-            </option>
-          {/each}
-        </select>
-      </div>
-
+      <!-- Selezione tipo contratto sempre visibile -->
       <div class="wizard-step">
         <label class="wizard-label" for="contratto-sel">Tipo contratto</label>
-        <select id="contratto-sel" class="tdv-select" bind:value={tipoContratto}>
+        <select
+          id="contratto-sel"
+          class="tdv-select"
+          bind:value={tipoContratto}
+          onchange={() => {
+            // reset settore/livello al default quando si cambia tipo
+            if (tipoContratto !== 'nero') {
+              const primo = settoreCorrente?.livelli[0];
+              if (primo) livello = primo.livello;
+            }
+          }}
+        >
           <option value="indeterminato">Indeterminato full-time</option>
           <option value="parttime">Part-time</option>
           <option value="partiva">Partita IVA (gestione separata)</option>
+          <option value="dottorato">Borsa di dottorato di ricerca</option>
+          <option value="nero">Non ho un contratto / lavoro a nero</option>
         </select>
       </div>
 
-      {#if tipoContratto === 'parttime'}
+      {#if tipoContratto === 'nero'}
+        <!-- ── Flusso lavoro a nero ── -->
+        <div class="wizard-nero-intro">
+          <span class="tdv-triangle"></span>
+          Inserisci quello che ricevi davvero: niente stime, niente calcoli. Il
+          modello funziona uguale — costi di vita e ore sottratte si calcolano
+          allo stesso modo.
+        </div>
+
         <div class="wizard-step">
-          <label for="pt-range" class="wizard-label">
-            Percentuale part-time: <strong>{percentualePt}%</strong>
+          <label for="paga-netta-input" class="wizard-label">
+            Paga mensile in mano (€)
           </label>
           <input
-            id="pt-range"
+            id="paga-netta-input"
+            type="number"
+            class="tdv-input"
+            min="1"
+            max="50000"
+            step="50"
+            placeholder="es. 900"
+            bind:value={pagaMensileNetta}
+          />
+        </div>
+
+        <div class="wizard-step">
+          <label for="ore-nero-range" class="wizard-label">
+            Ore lavorate a settimana: <strong>{oreSettimanali}h</strong>
+          </label>
+          <input
+            id="ore-nero-range"
             type="range"
-            min="10"
-            max="99"
-            step="5"
-            bind:value={percentualePt}
+            min="4"
+            max="80"
+            step="1"
+            bind:value={oreSettimanali}
             class="tdv-range"
           />
         </div>
-      {/if}
 
-      <div class="riepilogo">
-        <div class="riep-row">
-          <span>Lordo annuo stimato</span>
-          <strong>{lordoAnnuoCalcolato.toLocaleString('it-IT')}€</strong>
+      {:else}
+        <!-- ── Flusso contratto regolamentato ── -->
+        <div class="wizard-step">
+          <label for="settore-sel" class="wizard-label">
+            {tipoContratto === 'dottorato' ? 'Tipo di borsa' : 'Settore CCNL'}
+          </label>
+          <select
+            id="settore-sel"
+            class="tdv-select"
+            bind:value={settoreId}
+            onchange={() => {
+              const primo = settoreCorrente?.livelli[0];
+              if (primo) livello = primo.livello;
+            }}
+          >
+            {#each settori.filter(s => tipoContratto === 'dottorato' ? s.id === 'dottorato' : s.id !== 'dottorato') as s (s.id)}
+              <option value={s.id}>{s.nome}</option>
+            {/each}
+          </select>
         </div>
-        <div class="riep-hint">
-          Stima da minimo tabellare CCNL × 13 mensilità.
+
+        <div class="wizard-step">
+          <label for="livello-sel" class="wizard-label">
+            {tipoContratto === 'dottorato' ? 'Tipo di borsa / anno' : 'Livello / inquadramento'}
+          </label>
+          <select id="livello-sel" class="tdv-select" bind:value={livello}>
+            {#each settoreCorrente?.livelli ?? [] as l (l.livello)}
+              <option value={l.livello}>
+                {l.descrizione} · {l.lordo_mensile}€/mese
+              </option>
+            {/each}
+          </select>
         </div>
-      </div>
+
+        {#if tipoContratto === 'dottorato'}
+          <div class="wizard-nota-dottorato">
+            <span class="nota-key">Nota fiscale</span>
+            Le borse di dottorato sono <strong>esenti IRPEF</strong> (art. 4, L. 476/1984)
+            e non soggette a contribuzione INPS sul percorso formativo standard. Il
+            netto coincide con il lordo.
+          </div>
+        {/if}
+
+        {#if tipoContratto === 'parttime'}
+          <div class="wizard-step">
+            <label for="pt-range" class="wizard-label">
+              Percentuale part-time: <strong>{percentualePt}%</strong>
+            </label>
+            <input
+              id="pt-range"
+              type="range"
+              min="10"
+              max="99"
+              step="5"
+              bind:value={percentualePt}
+              class="tdv-range"
+            />
+          </div>
+        {/if}
+
+        <div class="riepilogo">
+          <div class="riep-row">
+            <span>Lordo annuo stimato</span>
+            <strong>{lordoAnnuoCalcolato.toLocaleString('it-IT')}€</strong>
+          </div>
+          <div class="riep-hint">
+            Minimo tabellare × {settoreCorrente?.mensilita ?? 13} mensilità
+            {tipoContratto === 'dottorato' ? '(DM 630/2023)' : '(CCNL)'}
+            {tipoContratto === 'parttime' ? `· ridotto al ${percentualePt}%` : ''}.
+          </div>
+        </div>
+      {/if}
 
       <div class="btn-row">
         <button type="button" class="tdv-btn-ghost" onclick={() => vaiStep(1)}>← Indietro</button>
@@ -416,44 +528,94 @@
             <dt>Città</dt>
             <dd>{provinciaSelezionata?.nome} ({provinciaSelezionata?.codice})</dd>
           </div>
-          <div>
-            <dt>Settore</dt>
-            <dd>{settoreCorrente?.nome}</dd>
-          </div>
-          <div>
-            <dt>Livello</dt>
-            <dd>{livello} · {livelloCorrente?.descrizione}</dd>
-          </div>
-          <div>
-            <dt>Contratto</dt>
-            <dd>
-              {tipoContratto === 'indeterminato'
-                ? 'Indeterminato full-time'
-                : tipoContratto === 'parttime'
-                  ? `Part-time ${percentualePt}%`
-                  : 'Partita IVA'}
-            </dd>
-          </div>
-          <div>
-            <dt>Lordo annuo</dt>
-            <dd><strong>{lordoAnnuoCalcolato.toLocaleString('it-IT')}€</strong></dd>
-          </div>
+          {#if tipoContratto === 'nero'}
+            <div>
+              <dt>Contratto</dt>
+              <dd>Nessun contratto · lavoro non regolamentato</dd>
+            </div>
+            <div>
+              <dt>Paga mensile dichiarata</dt>
+              <dd><strong>{pagaMensileNetta.toLocaleString('it-IT')}€ netti</strong></dd>
+            </div>
+            <div>
+              <dt>Ore settimanali</dt>
+              <dd>{oreSettimanali}h</dd>
+            </div>
+          {:else}
+            <div>
+              <dt>Settore</dt>
+              <dd>{settoreCorrente?.nome}</dd>
+            </div>
+            <div>
+              <dt>Livello</dt>
+              <dd>{livelloCorrente?.descrizione}</dd>
+            </div>
+            <div>
+              <dt>Contratto</dt>
+              <dd>
+                {tipoContratto === 'indeterminato' ? 'Indeterminato full-time'
+                  : tipoContratto === 'parttime' ? `Part-time ${percentualePt}%`
+                  : tipoContratto === 'dottorato' ? 'Borsa di dottorato'
+                  : 'Partita IVA (gestione separata)'}
+              </dd>
+            </div>
+            <div>
+              <dt>Lordo annuo</dt>
+              <dd><strong>{lordoAnnuoCalcolato.toLocaleString('it-IT')}€</strong></dd>
+            </div>
+          {/if}
         </dl>
 
-        <!-- Anteprima viva: numeri concreti prima di lanciare il calcolo finale -->
+        <!-- Anteprima viva -->
         <div class="anteprima-vivente">
           <div class="av-row">
-            <span class="av-key">Netto mensile stimato</span>
-            <span class="av-val red">~{nettoMensileStimato.toLocaleString('it-IT')}€</span>
+            <span class="av-key">
+              {tipoContratto === 'nero' ? 'Paga in mano al mese' : 'Netto mensile stimato'}
+            </span>
+            <span class="av-val red">
+              {tipoContratto === 'nero' ? '' : '~'}{nettoMensileStimato.toLocaleString('it-IT')}€
+            </span>
           </div>
           <div class="av-row">
             <span class="av-key">Ore di lavoro al mese</span>
             <span class="av-val">{oreLavoroMensili}h</span>
           </div>
           <div class="av-hint">
-            Calcolo client-side · IRPEF + INPS + addizionali · margine ±3%
+            {#if tipoContratto === 'nero'}
+              Nessuna trattenuta fiscale dichiarata · il modello usa la paga come netto
+            {:else if tipoContratto === 'dottorato'}
+              Borsa esente IRPEF ex L. 476/1984 · netto = lordo · margine ±3%
+            {:else}
+              Calcolo client-side · IRPEF + INPS + addizionali · margine ±3%
+            {/if}
           </div>
         </div>
+
+        <!-- Diritti non goduti — solo lavoro a nero -->
+        {#if tipoContratto === 'nero' && dirittiNonGoduti}
+          <div class="diritti-non-goduti">
+            <div class="dng-label">
+              <span class="tdv-triangle"></span>
+              Cosa non stai accumulando
+            </div>
+            <div class="dng-row">
+              <span class="dng-key">TFR non maturato</span>
+              <span class="dng-val">~{dirittiNonGoduti.tfr.toLocaleString('it-IT')}€/anno</span>
+            </div>
+            <div class="dng-row">
+              <span class="dng-key">Ferie retribuite</span>
+              <span class="dng-val">0 giorni (diritto: 26gg/anno · ~{dirittiNonGoduti.ferie.toLocaleString('it-IT')}€)</span>
+            </div>
+            <div class="dng-row">
+              <span class="dng-key">Contributi INPS pensione</span>
+              <span class="dng-val">0 (stima: ~{dirittiNonGoduti.inpsAnnuo.toLocaleString('it-IT')}€/anno non versati)</span>
+            </div>
+            <div class="dng-row">
+              <span class="dng-key">Malattia / maternità</span>
+              <span class="dng-val">nessuna copertura</span>
+            </div>
+          </div>
+        {/if}
       </div>
 
       <!-- Anteprima report: cosa l'utente vedrà dopo aver cliccato Calcola -->
@@ -1057,6 +1219,82 @@
     font-weight: 600;
     font-size: 16px;
     line-height: 1;
+  }
+
+  /* ─── Lavoro a nero: intro + diritti non goduti ─── */
+  .wizard-nero-intro {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    border-left: 2px solid var(--tdv-red);
+    background: rgba(200, 41, 30, 0.04);
+    font-size: 11px;
+    color: var(--tdv-ink2);
+    line-height: 1.65;
+    margin-bottom: 20px;
+  }
+
+  .diritti-non-goduti {
+    margin-top: 18px;
+    padding: 14px 16px;
+    border: 1px solid var(--tdv-border);
+    border-left: 2px solid var(--tdv-ink3);
+    background: rgba(90, 88, 80, 0.06);
+  }
+  .dng-label {
+    font-size: 9px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--tdv-ink3);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .dng-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 5px 0;
+    border-bottom: 1px solid var(--tdv-border2);
+    font-size: 10px;
+  }
+  .dng-row:last-child {
+    border-bottom: none;
+  }
+  .dng-key {
+    color: var(--tdv-ink3);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 9px;
+  }
+  .dng-val {
+    color: var(--tdv-ink2);
+  }
+
+  /* ─── Nota dottorato ─── */
+  .wizard-nota-dottorato {
+    margin-bottom: 16px;
+    padding: 10px 14px;
+    border-left: 2px solid var(--tdv-green);
+    background: rgba(29, 158, 117, 0.05);
+    font-size: 11px;
+    color: var(--tdv-ink2);
+    line-height: 1.65;
+  }
+  .wizard-nota-dottorato .nota-key {
+    display: block;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--tdv-green);
+    margin-bottom: 6px;
+  }
+  .wizard-nota-dottorato strong {
+    color: var(--tdv-ink);
   }
 
   .btn-row {

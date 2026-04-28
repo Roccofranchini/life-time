@@ -3,7 +3,7 @@
 
 // ─── Profilo utente ────────────────────────────────────────────────────────
 
-export type TipoContratto = 'indeterminato' | 'parttime' | 'partiva';
+export type TipoContratto = 'indeterminato' | 'parttime' | 'partiva' | 'dottorato' | 'nero';
 
 export interface ProfiloUtente {
   provincia: string; // codice ISTAT es. "BO"
@@ -16,6 +16,7 @@ export interface ProfiloUtente {
   tipo_contratto: TipoContratto;
   percentuale_parttime?: number; // es. 0.6 per 60%
   ore_settimanali_contratto: number; // es. 40
+  paga_mensile_netta?: number; // solo per tipo_contratto === 'nero'
 }
 
 // ─── Dati CCNL ─────────────────────────────────────────────────────────────
@@ -31,6 +32,7 @@ export interface CcnlSettore {
   nome: string;
   fonte: string; // URL PDF/fonte ufficiale
   aggiornato: string; // ISO date
+  mensilita?: number; // default 13; dottorato usa 12 (no 13a)
   livelli: CcnlLivello[];
 }
 

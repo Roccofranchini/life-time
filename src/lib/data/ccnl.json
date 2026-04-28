@@ -52,6 +52,53 @@
         { "livello": "4", "descrizione": "4° livello", "lordo_mensile": 1700 },
         { "livello": "5", "descrizione": "5°/6° livello", "lordo_mensile": 1560 }
       ]
+    },
+    {
+      "id": "pubblica-amministrazione",
+      "nome": "Pubblica Amministrazione — Funzioni Centrali (CCNL AraN)",
+      "fonte": "https://www.aranagenzia.it/contrattazione/comparti/funzioni-centrali/contratti/item/13033-ccnl-comparto-funzioni-centrali-2019-2021.html",
+      "aggiornato": "2022-05-09",
+      "livelli": [
+        { "livello": "1", "descrizione": "Elevata Qualificazione (EQ, ex D super)", "lordo_mensile": 2157 },
+        { "livello": "2", "descrizione": "Area Funzionari (ex C)", "lordo_mensile": 1866 },
+        { "livello": "3", "descrizione": "Area Assistenti (ex B super)", "lordo_mensile": 1616 },
+        { "livello": "4", "descrizione": "Area Operatori (ex B base)", "lordo_mensile": 1520 }
+      ]
+    },
+    {
+      "id": "funzioni-locali",
+      "nome": "Enti Locali — Funzioni Locali (CCNL AraN)",
+      "fonte": "https://www.aranagenzia.it/contrattazione/comparti/funzioni-locali/contratti/item/13034-ccnl-comparto-funzioni-locali-2019-2021.html",
+      "aggiornato": "2022-05-16",
+      "livelli": [
+        { "livello": "1", "descrizione": "Elevata Qualificazione (EQ)", "lordo_mensile": 2130 },
+        { "livello": "2", "descrizione": "Area Istruttori Direttivi (ex D)", "lordo_mensile": 1883 },
+        { "livello": "3", "descrizione": "Area Istruttori (ex C)", "lordo_mensile": 1640 },
+        { "livello": "4", "descrizione": "Area Operatori (ex B/A)", "lordo_mensile": 1530 }
+      ]
+    },
+    {
+      "id": "scuola",
+      "nome": "Scuola Pubblica — Personale Docente (CCNL AraN Istruzione e Ricerca)",
+      "fonte": "https://www.aranagenzia.it/contrattazione/comparti/istruzione-e-ricerca/contratti/item/13720-ccnl-istruzione-e-ricerca-2019-2021.html",
+      "aggiornato": "2024-01-18",
+      "livelli": [
+        { "livello": "1", "descrizione": "Docente oltre 35 anni di servizio", "lordo_mensile": 2530 },
+        { "livello": "2", "descrizione": "Docente 21-27 anni di servizio", "lordo_mensile": 2120 },
+        { "livello": "3", "descrizione": "Docente 9-14 anni di servizio", "lordo_mensile": 1810 },
+        { "livello": "4", "descrizione": "Docente neoassunto (0-8 anni)", "lordo_mensile": 1700 }
+      ]
+    },
+    {
+      "id": "dottorato",
+      "nome": "Borsa di Dottorato di Ricerca (MUR)",
+      "fonte": "https://www.mur.gov.it/it/atti-e-normativa/decreto-ministeriale-13-giugno-2023-n-630",
+      "aggiornato": "2024-01-01",
+      "mensilita": 12,
+      "livelli": [
+        { "livello": "1", "descrizione": "Borsa standard (importo minimo DM 630/2023)", "lordo_mensile": 1354 },
+        { "livello": "2", "descrizione": "Borsa con maggiorazione soggiorno estero (+50%)", "lordo_mensile": 2031 }
+      ]
     }
   ]
 }

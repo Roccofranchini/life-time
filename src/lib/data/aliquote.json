@@ -42,7 +42,7 @@
     "veneto": 0.0123
   },
   "addizionali_comunali_media": 0.008,
-  "margine_medio_settore_fonte": "ISTAT, Conti economici delle imprese e dei gruppi di imprese — anno 2023 (pubblicazione ottobre 2025). Indicatore: MOL/Valore aggiunto a prezzi base, per divisione ATECO. Interpretazione: quota del valore aggiunto non assegnata al lavoro dipendente — proxy settoriale del profit share e, in cornice marxiana, del saggio di sfruttamento.",
+  "margine_medio_settore_fonte": "ISTAT, Conti economici delle imprese e dei gruppi di imprese — anno 2023 (pubblicazione ottobre 2025). Indicatore: MOL/Valore aggiunto a prezzi base, per divisione ATECO. Interpretazione: quota del valore aggiunto non assegnata al lavoro dipendente — proxy settoriale del profit share e, in cornice marxiana, del saggio di sfruttamento. Settori pubblici (PA, scuola): 0.00 — non c'è estrazione di profitto privato, scelta editoriale conservativa. Dottorato: 0.35 — stima editoriale del valore di ricerca estratto con borsa minima. Nero: 0.40 — il datore a nero risparmia anche i contributi datoriali (~23%), aumentando il surplus estratto.",
   "margine_medio_settore_url": "https://www.istat.it/wp-content/uploads/2025/10/Report-Conti-economici-imprese-e-gruppi_2023.pdf",
   "margine_medio_settore": {
     "commercio": 0.30,
@@ -53,6 +53,11 @@
     "edilizia": 0.30,
     "pulizie": 0.20,
     "sanita-privata": 0.35,
+    "pubblica-amministrazione": 0.00,
+    "funzioni-locali": 0.00,
+    "scuola": 0.00,
+    "dottorato": 0.35,
+    "nero": 0.40,
     "default": 0.32
   }
 }
