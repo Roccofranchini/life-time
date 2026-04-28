@@ -16,7 +16,7 @@
 
   const { children }: Props = $props();
 
-  const GITHUB_URL = 'https://github.com/';
+  const GITHUB_URL = 'https://github.com/roccofranchini/life-time';
 
   function scrollAWizard(e: MouseEvent) {
     if ($page.url.pathname !== '/') return;
@@ -47,8 +47,13 @@
       Tempo di vita
     </a>
     <a href="/#wizard" class="tdv-nav-item" onclick={scrollAWizard}>Calcola</a>
-    <a href={GITHUB_URL} class="tdv-nav-item" target="_blank" rel="noopener noreferrer">
-      Dati aperti ↗
+    <a
+      href="/dati-aperti"
+      class="tdv-nav-item"
+      class:active={$page.url.pathname === '/dati-aperti'}
+      aria-current={$page.url.pathname === '/dati-aperti' ? 'page' : undefined}
+    >
+      Dati aperti
     </a>
     <a href={GITHUB_URL} class="tdv-nav-item" target="_blank" rel="noopener noreferrer">
       GitHub ↗
