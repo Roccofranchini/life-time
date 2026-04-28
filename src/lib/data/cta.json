@@ -44,6 +44,42 @@
       "url": "https://fiompiemonte.it/",
       "tag": ["metalmeccanici", "fabbrica", "vertenze", "sicurezza"],
       "descrizione": "Sindacato dei metalmeccanici di Torino, vertenze contrattuali, sicurezza sul lavoro, rappresentanza delle RSU."
+    },
+    {
+      "id": "cgil-nazionale",
+      "provincia": "nazionale",
+      "tipo": "sindacato_lavoro",
+      "nome": "CGIL — Confederazione Generale Italiana del Lavoro",
+      "url": "https://www.cgil.it",
+      "tag": ["lavoro", "vertenze", "contratti", "diritti", "sindacato"],
+      "descrizione": "Il principale sindacato italiano: sportelli vertenze, consulenza contrattuale, patronato INCA per pratiche previdenziali e assistenziali su tutto il territorio."
+    },
+    {
+      "id": "sunia-nazionale",
+      "provincia": "nazionale",
+      "tipo": "sindacato_inquilini",
+      "nome": "SUNIA — Sindacato Unitario Nazionale Inquilini",
+      "url": "https://www.sunia.it",
+      "tag": ["affitto", "casa", "sfratto", "edilizia-popolare", "inquilini"],
+      "descrizione": "Tutela degli inquilini in tutta Italia: assistenza legale, sportelli sfratto, consulenza su canoni concordati, edilizia pubblica e morosità incolpevole."
+    },
+    {
+      "id": "unione-inquilini-nazionale",
+      "provincia": "nazionale",
+      "tipo": "sindacato_inquilini",
+      "nome": "Unione Inquilini",
+      "url": "https://www.unioneinquilini.it",
+      "tag": ["affitto", "caro-affitti", "sfratto", "casa", "diritti"],
+      "descrizione": "Sindacato di lotta per il diritto all'abitare: campagne contro caro-affitti, sportelli anti-sfratto, autorecupero, vertenze abitative in tutta Italia."
+    },
+    {
+      "id": "nidil-cgil-nazionale",
+      "provincia": "nazionale",
+      "tipo": "sindacato_lavoro",
+      "nome": "NIdiL CGIL — Lavoro Atipico e Autonomo",
+      "url": "https://www.nidil.cgil.it",
+      "tag": ["precari", "partiva", "co.co.co", "atipici", "freelance"],
+      "descrizione": "Sindacato CGIL dei lavoratori atipici: P.IVA, co.co.co, somministrazione, intermittenti. Sportelli contrattuali, tutele, patronato per lavoratori senza protezioni standard."
     }
   ]
 }

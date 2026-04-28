@@ -6,7 +6,9 @@
   Nessun dato persistente: reload = reset.
 -->
 <script lang="ts">
+  import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
+  import { get } from 'svelte/store';
   import Globe from '$lib/components/Globe.svelte';
   import provinceData from '$lib/data/province.json';
   import ccnlData from '$lib/data/ccnl.json';
@@ -128,6 +130,31 @@
     { n: 2, label: 'Lavoro' },
     { n: 3, label: 'Conferma' }
   ];
+
+  // ─── Pre-popolamento da store (flusso "← Modifica" dal report) ──────
+  // Se l'URL contiene ?modifica=1 e lo store profilo è popolato, ripristina
+  // la selezione nello step 2 senza azzerare i dati già calcolati.
+  onMount(() => {
+    const url = new URL(window.location.href);
+    if (url.searchParams.get('modifica') !== '1') return;
+    const p = get(profilo);
+    if (!p) return;
+
+    const prov = province.find((pr) => pr.codice === p.provincia);
+    if (prov) {
+      provinciaSelezionata = prov;
+      queryProvincia = `${prov.nome} (${prov.codice})`;
+    }
+    if (p.settore_id && p.settore_id !== 'nero') settoreId = p.settore_id;
+    if (p.livello && p.livello !== '-') livello = p.livello;
+    tipoContratto = p.tipo_contratto;
+    if (p.tipo_contratto === 'parttime' && p.percentuale_parttime) {
+      percentualePt = Math.round(p.percentuale_parttime * 100);
+    }
+    oreSettimanali = p.ore_settimanali_contratto ?? 40;
+    if (p.paga_mensile_netta) pagaMensileNetta = p.paga_mensile_netta;
+    step = 2;
+  });
 
   // ─── Handlers ───────────────────────────────────────────────────────
   function selezionaProvincia(p: ProvinciaEntry) {

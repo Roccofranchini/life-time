@@ -109,7 +109,7 @@
 
     const sLoc = get(risultatoSopravvivenza);
     if (!get(breakdownTemporale) && sLoc) {
-      const lordoStimato = f.netto_annuo + f.irpef_annua + f.contributi_inps;
+      const lordoStimato = f.netto_annuo + f.irpef_annua + f.contributi_inps + f.addizionale_regionale + f.addizionale_comunale;
       const b: TimeBreakdown = calcola_breakdown_temporale({
         survival: sLoc,
         fiscal: f,
@@ -232,7 +232,7 @@
     const settore = settori.find((s) => s.id === p.settore_id);
     const livello = settore?.livelli.find((l) => l.livello === p.livello);
     if (!livello) return 0;
-    let lordo = livello.lordo_mensile * 13;
+    let lordo = livello.lordo_mensile * (settore?.mensilita ?? 13);
     if (p.tipo_contratto === 'parttime' && p.percentuale_parttime) {
       lordo = Math.round(lordo * p.percentuale_parttime);
     }
@@ -248,12 +248,17 @@
       mostraShareConferma = true;
       setTimeout(() => (mostraShareConferma = false), 2500);
     } catch {
-      // permessi clipboard negati: fallback a prompt
       window.prompt('Copia il link manualmente:', url);
     }
   }
 
-  function ricalcola() {
+  function modifica() {
+    // Torna al wizard pre-popolato senza resettare i dati dello store.
+    // +page.svelte rileva ?modifica=1 e ripristina lo step 2 dai valori dello store.
+    goto('/?modifica=1');
+  }
+
+  function ricomincia() {
     resetTuttiGliStore();
     goto('/');
   }
@@ -462,14 +467,23 @@
 
   <!-- ─── Azioni ─── -->
   <section class="azioni">
-    <button type="button" class="tdv-btn-primary" onclick={condividi}>
-      {mostraShareConferma ? '✓ Link copiato negli appunti' : 'Condividi questo report →'}
-    </button>
-    <button type="button" class="tdv-btn-ghost" onclick={ricalcola}>← Ricalcola</button>
-    <p class="tdv-privacy-note">
-      Il link contiene solo la tua selezione (provincia, settore, contratto), mai numeri o dati
-      personali. Non stiamo memorizzando nulla di te.
-    </p>
+    {#if $profilo?.tipo_contratto === 'nero'}
+      <div class="share-nero-note">
+        <span class="tdv-triangle"></span>
+        Il report a nero non è condivisibile via link: la paga inserita non lascia mai il tuo browser
+        e non può essere ricostruita da un URL. Fai uno screenshot se vuoi condividerlo.
+      </div>
+    {:else}
+      <button type="button" class="tdv-btn-primary" onclick={condividi}>
+        {mostraShareConferma ? '✓ Link copiato negli appunti' : 'Condividi questo report →'}
+      </button>
+      <p class="tdv-privacy-note">
+        Il link contiene solo la tua selezione (provincia, settore, contratto), mai numeri o dati
+        personali. Non stiamo memorizzando nulla di te.
+      </p>
+    {/if}
+    <button type="button" class="tdv-btn-ghost" onclick={modifica}>← Modifica selezione</button>
+    <button type="button" class="btn-ricomincia" onclick={ricomincia}>Ricomincia da zero</button>
   </section>
 {:else}
   <div class="empty">
@@ -743,6 +757,32 @@
     margin: 0 auto;
     display: grid;
     gap: 12px;
+  }
+  .share-nero-note {
+    font-size: 11px;
+    color: var(--tdv-ink2);
+    line-height: 1.7;
+    border-left: 2px solid var(--tdv-red);
+    padding: 10px 14px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .btn-ricomincia {
+    background: transparent;
+    border: none;
+    color: var(--tdv-ink3);
+    font-family: var(--tdv-mono);
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 8px 0;
+    cursor: pointer;
+    text-align: center;
+    transition: color 0.2s;
+  }
+  .btn-ricomincia:hover {
+    color: var(--tdv-ink2);
   }
 
   .empty {

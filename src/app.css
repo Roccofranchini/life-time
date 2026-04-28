@@ -38,6 +38,40 @@
   --tdv-serif: 'Playfair Display', 'Times New Roman', serif;
 }
 
+/* Light mode: override dei token quando l'OS preferisce tema chiaro.
+   Il tema di default rimane scuro — scelta editoriale intenzionale. */
+@media (prefers-color-scheme: light) {
+  :root {
+    --tdv-bg: #f5f2eb;
+    --tdv-ink: #0d0d0a;
+    --tdv-ink2: #4a4840;
+    --tdv-ink3: #7a7870;
+
+    --tdv-grid: rgba(10, 10, 8, 0.04);
+    --tdv-border: rgba(10, 10, 8, 0.12);
+    --tdv-border2: rgba(10, 10, 8, 0.07);
+
+    --tdv-red-dim: rgba(200, 41, 30, 0.10);
+
+    /* Segmenti torta — più leggibili su sfondo chiaro */
+    --tdv-seg-sonno: #c8c5be;
+    --tdv-seg-capitale: #8a8880;
+    --tdv-seg-vita-biologica: #b0a090;
+
+    --tdv-paper-2: #ece9e2;
+  }
+
+  /* Input/select: sfondo carta su light */
+  .tdv-input,
+  .tdv-select {
+    background: rgba(10, 10, 8, 0.03);
+  }
+  .tdv-select option {
+    background: #f5f2eb;
+    color: #0d0d0a;
+  }
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
