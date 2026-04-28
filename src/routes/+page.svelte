@@ -10,6 +10,7 @@
   import Globe from '$lib/components/Globe.svelte';
   import provinceData from '$lib/data/province.json';
   import ccnlData from '$lib/data/ccnl.json';
+  import { calcola_netto } from '$lib/engine/fiscal';
   import {
     profilo,
     risultatoFiscale,
@@ -83,6 +84,30 @@
       annuo = annuo * (percentualePt / 100);
     }
     return Math.round(annuo);
+  });
+
+  // Anteprima netto calcolata client-side (stesso engine puro del server).
+  // Usata nel riepilogo step 3 per dare immediato un numero concreto.
+  const nettoMensileStimato: number = $derived.by(() => {
+    if (!provinciaSelezionata || lordoAnnuoCalcolato <= 0) return 0;
+    try {
+      const out = calcola_netto({
+        lordo_annuo: lordoAnnuoCalcolato,
+        tipo_contratto: tipoContratto,
+        regione: provinciaSelezionata.regione,
+        comune: provinciaSelezionata.nome.toLowerCase()
+      });
+      return Math.round(out.netto_mensile);
+    } catch {
+      return 0;
+    }
+  });
+
+  // Ore di lavoro contrattuali stimate al mese (CCNL standard 40h/sett × 4.33).
+  const oreLavoroMensili: number = $derived.by(() => {
+    const oreFull = oreSettimanali * 4.33;
+    if (tipoContratto === 'parttime') return Math.round(oreFull * (percentualePt / 100));
+    return Math.round(oreFull);
   });
 
   // ─── Wizard step metadata (per stepper) ─────────────────────────────
@@ -190,18 +215,23 @@
         pubblici, calcoli verificabili, nessun dato raccolto.
       </p>
     </div>
-    <div class="hero-stat">
-      <div class="stat-item">
-        <div class="tdv-stat-n">18</div>
-        <div class="tdv-stat-l">giorni/mese per l'affitto</div>
+    <div class="hero-stat-wrap">
+      <div class="hero-stat-eyebrow">
+        Esempio · commercio livello 4 · Bologna
       </div>
-      <div class="stat-item">
-        <div class="tdv-stat-n">8h</div>
-        <div class="tdv-stat-l">tempo libero reale/giorno</div>
-      </div>
-      <div class="stat-item">
-        <div class="tdv-stat-n">±3%</div>
-        <div class="tdv-stat-l">margine di stima</div>
+      <div class="hero-stat">
+        <div class="stat-item">
+          <div class="tdv-stat-n">18</div>
+          <div class="tdv-stat-l">giorni/mese per l'affitto</div>
+        </div>
+        <div class="stat-item">
+          <div class="tdv-stat-n">8h</div>
+          <div class="tdv-stat-l">tempo libero reale/giorno</div>
+        </div>
+        <div class="stat-item">
+          <div class="tdv-stat-n">±3%</div>
+          <div class="tdv-stat-l">margine di stima</div>
+        </div>
       </div>
     </div>
   </div>
@@ -409,6 +439,65 @@
             <dd><strong>{lordoAnnuoCalcolato.toLocaleString('it-IT')}€</strong></dd>
           </div>
         </dl>
+
+        <!-- Anteprima viva: numeri concreti prima di lanciare il calcolo finale -->
+        <div class="anteprima-vivente">
+          <div class="av-row">
+            <span class="av-key">Netto mensile stimato</span>
+            <span class="av-val red">~{nettoMensileStimato.toLocaleString('it-IT')}€</span>
+          </div>
+          <div class="av-row">
+            <span class="av-key">Ore di lavoro al mese</span>
+            <span class="av-val">{oreLavoroMensili}h</span>
+          </div>
+          <div class="av-hint">
+            Calcolo client-side · IRPEF + INPS + addizionali · margine ±3%
+          </div>
+        </div>
+      </div>
+
+      <!-- Anteprima report: cosa l'utente vedrà dopo aver cliccato Calcola -->
+      <div class="cosa-vedrai">
+        <div class="cv-label">
+          <span class="tdv-triangle"></span>
+          Cosa vedrai dopo
+        </div>
+        <ul class="cv-list">
+          <li>
+            <span class="cv-glyph cv-glyph-pie" aria-hidden="true">
+              <span></span><span></span><span></span><span></span>
+            </span>
+            <div>
+              <strong>Torta del tuo tempo</strong>
+              <span class="cv-sub">7 segmenti: sopravvivenza · stato · capitale · sonno · vita biologica · libero</span>
+            </div>
+          </li>
+          <li>
+            <span class="cv-glyph cv-glyph-bars" aria-hidden="true">
+              <span></span><span></span><span></span>
+            </span>
+            <div>
+              <strong>Confronto con altre città</strong>
+              <span class="cv-sub">stesso lordo, costi e tasse di 5 capoluoghi italiani</span>
+            </div>
+          </li>
+          <li>
+            <span class="cv-glyph cv-glyph-star" aria-hidden="true">
+              <span class="tdv-star"></span>
+            </span>
+            <div>
+              <strong>Sindacati e sportelli vicino a te</strong>
+              <span class="cv-sub">SUNIA, CGIL, collettivi della tua provincia — quando i numeri scottano</span>
+            </div>
+          </li>
+          <li>
+            <span class="cv-glyph cv-glyph-link" aria-hidden="true">#</span>
+            <div>
+              <strong>Link condivisibile</strong>
+              <span class="cv-sub">URL anonimo per condividere il risultato — nessun tracciamento</span>
+            </div>
+          </li>
+        </ul>
       </div>
 
       <button
@@ -438,25 +527,71 @@
   <aside class="side-col">
     <div class="tdv-section-label">
       <span class="tdv-star dim"></span>
-      Anteprima metodologia
+      Come funziona
     </div>
-    <ul class="side-list">
-      <li>
-        <strong>Fiscale.</strong> IRPEF 2026 (23%/33%/43% — post L. 199/2025), INPS 9,19% dipendente o 26,23% P.IVA,
-        addizionali regionali/comunali medie.
-      </li>
-      <li>
-        <strong>Costi vita.</strong> Affitto OMI, spesa ISTAT, carburante Mimit, bollette Arera
-        — aggiornati ogni 7 giorni.
-      </li>
-      <li>
-        <strong>Tempo.</strong> 730h/mese totali − 240h sonno − ore di lavoro necessarie per
-        sopravvivenza, stato, capitale.
-      </li>
-      <li>
-        <strong>Margine.</strong> ±3% su ogni stima. Non è consulenza fiscale.
-      </li>
-    </ul>
+
+    <p class="side-intro">
+      Tempo di Vita non inventa numeri. Legge dati pubblici dello Stato e li
+      trasforma in qualcosa che si capisce: <em>ore della tua vita</em>.
+    </p>
+
+    <details class="side-detail">
+      <summary>
+        <span class="side-q-mark" aria-hidden="true"></span>
+        <span class="side-q">Da dove vengono le tasse?</span>
+      </summary>
+      <div class="side-a">
+        L'<strong>IRPEF</strong> è la tassa sul reddito: tre fasce (23%, 33%,
+        43%) decise ogni anno dalla Legge di Bilancio. Ai dipendenti si
+        sommano i <strong>contributi INPS</strong> (9,19%) e le
+        <strong>addizionali regionali e comunali</strong>, diverse città per
+        città. Per chi ha partita IVA in gestione separata: 26,23% INPS.
+      </div>
+    </details>
+
+    <details class="side-detail">
+      <summary>
+        <span class="side-q-mark" aria-hidden="true"></span>
+        <span class="side-q">Da dove vengono i costi della vita?</span>
+      </summary>
+      <div class="side-a">
+        L'<strong>OMI</strong> è il database immobiliare dell'Agenzia delle
+        Entrate: lo Stato pubblica i prezzi medi degli affitti per ogni
+        provincia, ogni sei mesi. L'<strong>ISTAT</strong> pubblica il
+        "paniere": i prezzi reali della spesa alimentare, mensili. Il
+        <strong>Mimit</strong> aggiorna ogni 48 ore i prezzi medi di benzina
+        e diesel. Le <strong>bollette</strong> seguono le tariffe ARERA.
+      </div>
+    </details>
+
+    <details class="side-detail">
+      <summary>
+        <span class="side-q-mark" aria-hidden="true"></span>
+        <span class="side-q">Come si trasforma il salario in ore?</span>
+      </summary>
+      <div class="side-a">
+        Un mese ha <strong>730 ore</strong>. Ne togliamo <strong>240</strong>
+        di sonno (8h × 30). Delle restanti, calcoliamo quante servono per
+        pagare affitto, spesa, bollette, tasse — quelle sono ore
+        <em>sottratte</em>. Ciò che rimane è il tuo tempo libero
+        <em>reale</em>, quello che davvero ti appartiene.
+      </div>
+    </details>
+
+    <details class="side-detail">
+      <summary>
+        <span class="side-q-mark" aria-hidden="true"></span>
+        <span class="side-q">Quanto sono affidabili questi numeri?</span>
+      </summary>
+      <div class="side-a">
+        Ogni stima porta un <strong>margine di ±3%</strong>: non è una
+        consulenza fiscale, è uno strumento di consapevolezza. Il calcolo è
+        verificabile riga per riga nel codice sorgente, e usa solo fonti
+        ufficiali e pubbliche.
+      </div>
+    </details>
+
+    <a href="/dati-aperti" class="side-cta">→ Mappa interattiva delle fonti</a>
   </aside>
 </section>
 
@@ -528,6 +663,20 @@
     border-left: 2px solid var(--tdv-red);
     padding-left: 14px;
     margin-bottom: 32px;
+  }
+  .hero-stat-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .hero-stat-eyebrow {
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--tdv-red);
+    padding-left: 10px;
+    border-left: 2px solid var(--tdv-red);
+    line-height: 1.4;
   }
   .hero-stat {
     display: flex;
@@ -763,6 +912,153 @@
     color: var(--tdv-ink);
   }
 
+  /* ─── Anteprima viva nel riepilogo (#3c) ─── */
+  .anteprima-vivente {
+    margin-top: 18px;
+    padding: 14px 16px;
+    border: 1px solid var(--tdv-border);
+    border-left: 2px solid var(--tdv-red);
+    background: rgba(200, 41, 30, 0.03);
+  }
+  .av-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--tdv-border2);
+  }
+  .av-row:last-of-type {
+    border-bottom: none;
+  }
+  .av-key {
+    font-size: 9px;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    color: var(--tdv-ink3);
+  }
+  .av-val {
+    font-family: var(--tdv-serif);
+    font-style: italic;
+    font-weight: 700;
+    font-size: 20px;
+    color: var(--tdv-ink);
+  }
+  .av-val.red {
+    color: var(--tdv-red);
+  }
+  .av-hint {
+    margin-top: 8px;
+    font-size: 9px;
+    letter-spacing: 0.06em;
+    color: var(--tdv-ink3);
+  }
+
+  /* ─── "Cosa vedrai dopo" (#3b) ─── */
+  .cosa-vedrai {
+    margin-top: 24px;
+    margin-bottom: 20px;
+    border-top: 1px solid var(--tdv-border);
+    padding-top: 20px;
+  }
+  .cv-label {
+    font-family: var(--tdv-mono);
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--tdv-red);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .cv-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+  }
+  .cv-list li {
+    display: grid;
+    grid-template-columns: 32px 1fr;
+    gap: 14px;
+    align-items: center;
+    padding: 12px 0;
+    border-top: 1px solid var(--tdv-border2);
+  }
+  .cv-list li:first-child {
+    border-top: none;
+  }
+  .cv-list strong {
+    display: block;
+    font-size: 11px;
+    color: var(--tdv-ink);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    margin-bottom: 3px;
+  }
+  .cv-sub {
+    display: block;
+    font-size: 10px;
+    color: var(--tdv-ink3);
+    line-height: 1.55;
+  }
+
+  /* Glifi CSS-puri (no emoji) */
+  .cv-glyph {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--tdv-red);
+  }
+  /* Pie: 4 quarti accostati a 4 colori del design system */
+  .cv-glyph-pie {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    width: 18px;
+    height: 18px;
+  }
+  .cv-glyph-pie span {
+    background: var(--tdv-red);
+  }
+  .cv-glyph-pie span:nth-child(2) {
+    background: var(--tdv-ink3);
+  }
+  .cv-glyph-pie span:nth-child(3) {
+    background: var(--tdv-green);
+  }
+  .cv-glyph-pie span:nth-child(4) {
+    background: #4a3a28;
+  }
+  /* 3 barre verticali tipo grafico a barre */
+  .cv-glyph-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 16px;
+  }
+  .cv-glyph-bars span {
+    width: 4px;
+    background: var(--tdv-red);
+  }
+  .cv-glyph-bars span:nth-child(1) {
+    height: 8px;
+  }
+  .cv-glyph-bars span:nth-child(2) {
+    height: 14px;
+  }
+  .cv-glyph-bars span:nth-child(3) {
+    height: 11px;
+  }
+  /* Link glyph: hash mono */
+  .cv-glyph-link {
+    font-family: var(--tdv-mono);
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 1;
+  }
+
   .btn-row {
     display: grid;
     grid-template-columns: auto 1fr;
@@ -781,22 +1077,95 @@
     color: var(--tdv-red2);
   }
 
-  /* side col */
-  .side-list {
-    list-style: none;
-    display: grid;
-    gap: 14px;
-  }
-  .side-list li {
-    font-size: 11px;
+  /* ─── Side col: "Come funziona" ─── */
+  .side-intro {
+    font-size: 12px;
     color: var(--tdv-ink2);
     line-height: 1.7;
-    padding-left: 10px;
-    border-left: 1px solid var(--tdv-border);
+    margin-bottom: 22px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--tdv-border);
   }
-  .side-list strong {
+  .side-intro em {
     color: var(--tdv-red);
+    font-style: italic;
+    font-family: var(--tdv-serif);
+  }
+
+  .side-detail {
+    border-bottom: 1px solid var(--tdv-border2);
+  }
+  .side-detail > summary {
+    list-style: none;
+    cursor: pointer;
+    padding: 12px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--tdv-ink2);
+    font-size: 11px;
+    line-height: 1.5;
+    transition: color 0.15s;
+  }
+  .side-detail > summary::-webkit-details-marker {
+    display: none;
+  }
+  .side-detail > summary:hover {
+    color: var(--tdv-ink);
+  }
+  /* Marker: triangolo CSS-only che ruota in stato open */
+  .side-q-mark {
+    width: 0;
+    height: 0;
+    border-left: 5px solid var(--tdv-red);
+    border-top: 4px solid transparent;
+    border-bottom: 4px solid transparent;
+    flex-shrink: 0;
+    transition: transform 0.2s ease-out;
+  }
+  .side-detail[open] > summary {
+    color: var(--tdv-red);
+  }
+  .side-detail[open] .side-q-mark {
+    transform: rotate(90deg);
+  }
+  .side-q {
+    flex: 1;
+  }
+
+  .side-a {
+    padding: 0 0 16px 15px;
+    margin-left: 0;
+    border-left: 1px solid var(--tdv-red-dim);
+    font-size: 11px;
+    line-height: 1.75;
+    color: var(--tdv-ink2);
+  }
+  .side-a strong {
+    color: var(--tdv-ink);
     font-weight: 600;
+  }
+  .side-a em {
+    color: var(--tdv-red);
+    font-style: italic;
+    font-family: var(--tdv-serif);
+  }
+
+  .side-cta {
+    display: inline-block;
+    margin-top: 22px;
+    font-size: 10px;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    color: var(--tdv-red);
+    text-decoration: none;
+    border-bottom: 1px solid var(--tdv-red-dim);
+    padding-bottom: 4px;
+    transition: border-color 0.2s;
+  }
+  .side-cta:hover {
+    border-color: var(--tdv-red);
+    color: var(--tdv-red2);
   }
 
   /* manifesto */
