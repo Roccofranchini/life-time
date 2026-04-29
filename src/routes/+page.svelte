@@ -530,6 +530,12 @@
             {tipoContratto === 'dottorato' ? '(DM 630/2023)' : '(CCNL)'}
             {tipoContratto === 'parttime' ? `· ridotto al ${percentualePt}%` : ''}.
           </div>
+          {#if settoreCorrente?.aggiornato}
+            <div class="riep-source">
+              Tabelle aggiornate al {settoreCorrente.aggiornato} ·
+              <a href={settoreCorrente.fonte} target="_blank" rel="noopener noreferrer">fonte ufficiale ↗</a>
+            </div>
+          {/if}
         </div>
       {/if}
 
@@ -1076,6 +1082,21 @@
     color: var(--tdv-ink3);
     margin-top: 6px;
     letter-spacing: 0.08em;
+  }
+  .riep-source {
+    font-size: 9px;
+    color: var(--tdv-ink3);
+    margin-top: 4px;
+    letter-spacing: 0.06em;
+  }
+  .riep-source a {
+    color: var(--tdv-ink3);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: color 0.2s;
+  }
+  .riep-source a:hover {
+    color: var(--tdv-red);
   }
 
   .riepilogo-finale {

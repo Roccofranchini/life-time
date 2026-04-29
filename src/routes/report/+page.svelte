@@ -225,6 +225,34 @@
 
   const giorniAffitto = $derived($breakdownTemporale?.giorni_affitto ?? 0);
   const oreLiberoSettimana = $derived((tempoLiberoReale / 4.33).toFixed(1));
+  // Traduzione umana: ore/giorno di tempo libero reale
+  const oreLiberoGiorno = $derived((tempoLiberoReale / 30).toFixed(1));
+  // Paga oraria netta (base per il calcolatore prezzi)
+  const pagaOrariaLorda = $derived(
+    $risultatoFiscale && $breakdownTemporale
+      ? ($risultatoFiscale.netto_annuo + $risultatoFiscale.irpef_annua + $risultatoFiscale.contributi_inps + $risultatoFiscale.addizionale_regionale + $risultatoFiscale.addizionale_comunale) / ($breakdownTemporale.ore_lavoro * 12)
+      : 0
+  );
+  const pagaOrariaNetta = $derived(
+    $risultatoFiscale && $breakdownTemporale
+      ? $risultatoFiscale.netto_mensile / $breakdownTemporale.ore_lavoro
+      : 0
+  );
+
+  // Calcolatore "quanto costa X in ore di vita"
+  let prezzoInput = $state<number | null>(null);
+  const costInOre = $derived.by(() => {
+    if (!prezzoInput || prezzoInput <= 0 || pagaOrariaNetta <= 0) return null;
+    const oreL = prezzoInput / pagaOrariaNetta;
+    const giorniL = oreL / ($breakdownTemporale?.ore_lavoro ?? 173) * 21;
+    const settL = oreL / ($breakdownTemporale?.ore_lavoro ?? 173) * 4.33;
+    return {
+      ore: Math.round(oreL * 10) / 10,
+      giorni: Math.round(giorniL * 10) / 10,
+      settimane: Math.round(settL * 10) / 10,
+      pctStipendio: Math.round((prezzoInput / ($risultatoFiscale?.netto_mensile ?? 1)) * 100)
+    };
+  });
 
   // Lordo annuo ricostruito dal CCNL del profilo (per il comparatore città).
   const lordoAnnuoAttuale = $derived.by(() => {
@@ -373,9 +401,22 @@
       Di {$breakdownTemporale.ore_totali_mese} ore in un mese, <strong>{Math.round($breakdownTemporale.ore_sonno)}</strong> le dormi,
       <strong>{Math.round($breakdownTemporale.ore_lavoro)}</strong> le lavori,
       <strong>{Math.round($breakdownTemporale.ore_vita_biologica)}</strong> le spendi a mangiare, cucinare, lavarti, muoverti.
-      Di <em>libero reale</em> ne resta circa <strong>{Math.round(tempoLiberoReale)}</strong> —
-      <strong>{oreLiberoSettimana}</strong> ore a settimana.
+      Di <em>libero reale</em> ne restano <strong>{Math.round(tempoLiberoReale)}</strong> ore al mese —
+      <strong>{oreLiberoSettimana}h a settimana</strong>,
+      <strong class="hero-sub-accent">{oreLiberoGiorno}h al giorno</strong>.
     </p>
+    <details class="margine-detail">
+      <summary>Da dove viene il ±{Math.round(MARGINE_ERRORE * 100)}% di margine?</summary>
+      <div class="margine-body">
+        <div class="mb-row"><span class="mb-k">Aliquote IRPEF</span><span class="mb-v">Precise — testo di legge</span></div>
+        <div class="mb-row"><span class="mb-k">Addizionali regionali</span><span class="mb-v">±0.5% — alcune regioni hanno variazioni per fasce</span></div>
+        <div class="mb-row"><span class="mb-k">Addizionale comunale</span><span class="mb-v">±0.8% — usiamo la media ISTAT; la tua comune può differire</span></div>
+        <div class="mb-row"><span class="mb-k">Detrazioni personali</span><span class="mb-v">±1% — non include figli, mutuo, spese mediche</span></div>
+        <div class="mb-row"><span class="mb-k">Minimi CCNL</span><span class="mb-v">Precisi — fonte tabellare; il tuo contratto individuale può essere superiore</span></div>
+        <div class="mb-row"><span class="mb-k">Affitto OMI</span><span class="mb-v">±5-10% — media di zona; il prezzo reale dipende dall'alloggio</span></div>
+        <p class="mb-note">Il ±3% è una stima conservativa del margine complessivo sul netto mensile. Non è consulenza fiscale.</p>
+      </div>
+    </details>
   </section>
 
   <!-- ─── Torta + legenda ─── -->
@@ -520,6 +561,47 @@
       </ul>
     </section>
   {/if}
+
+  <!-- ─── Calcolatore prezzi ─── -->
+  <section class="calcolatore">
+    <div class="tdv-section-label">
+      <span class="tdv-star"></span>
+      Quanto costa X in ore di vita?
+    </div>
+    <p class="calc-desc">
+      Inserisci il prezzo di qualcosa. Ti diciamo quante ore di lavoro netto equivale.
+    </p>
+    <div class="calc-input-row">
+      <span class="calc-currency">€</span>
+      <input
+        type="number"
+        class="calc-input"
+        placeholder="0"
+        min="0"
+        step="1"
+        bind:value={prezzoInput}
+        aria-label="Prezzo da convertire in ore"
+      />
+    </div>
+    {#if costInOre}
+      <div class="calc-results">
+        <div class="calc-result-main">
+          <span class="calc-ore">{costInOre.ore}h</span>
+          <span class="calc-ore-label">di lavoro netto</span>
+        </div>
+        <div class="calc-result-sub">
+          <span>{costInOre.giorni} giorni lavorativi</span>
+          <span class="calc-sep">·</span>
+          <span>{costInOre.settimane} settimane</span>
+          <span class="calc-sep">·</span>
+          <span class:calc-pct-warn={costInOre.pctStipendio > 20}>{costInOre.pctStipendio}% dello stipendio mensile</span>
+        </div>
+        <div class="calc-paga">
+          La tua paga netta è <strong>{formatEuro(Math.round(pagaOrariaNetta))}/h</strong>.
+        </div>
+      </div>
+    {/if}
+  </section>
 
   <!-- ─── Export card ─── -->
   <section class="export-section">
@@ -684,6 +766,60 @@
   .hero-sub strong {
     color: var(--tdv-ink);
     font-weight: 600;
+  }
+  .hero-sub-accent {
+    color: var(--tdv-red);
+    font-weight: 700;
+  }
+
+  /* ±3% expandable */
+  .margine-detail {
+    margin-top: 16px;
+    max-width: 680px;
+    border-left: 2px solid var(--tdv-border2);
+    padding-left: 14px;
+  }
+  .margine-detail summary {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--tdv-ink3);
+    cursor: pointer;
+    user-select: none;
+    padding: 4px 0;
+    list-style: none;
+  }
+  .margine-detail summary::-webkit-details-marker { display: none; }
+  .margine-detail[open] summary {
+    color: var(--tdv-ink2);
+    margin-bottom: 12px;
+  }
+  .margine-body {
+    display: grid;
+    gap: 6px;
+  }
+  .mb-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    font-size: 10px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--tdv-border2);
+  }
+  .mb-k {
+    color: var(--tdv-ink2);
+    flex-shrink: 0;
+  }
+  .mb-v {
+    color: var(--tdv-ink3);
+    text-align: right;
+  }
+  .mb-note {
+    font-size: 9px;
+    color: var(--tdv-ink3);
+    line-height: 1.7;
+    margin-top: 8px;
+    letter-spacing: 0.03em;
   }
 
   /* ─── Content ─── */
@@ -899,6 +1035,110 @@
     color: var(--tdv-ink3);
     background: rgba(255, 255, 255, 0.03);
     padding: 3px 8px;
+  }
+
+  /* ─── Calcolatore prezzi ─── */
+  .calcolatore {
+    padding: 32px;
+    border-bottom: var(--tdv-border);
+    max-width: 960px;
+    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .calc-desc {
+    font-size: 11px;
+    color: var(--tdv-ink3);
+    margin: 8px 0 20px;
+    line-height: 1.6;
+  }
+  .calc-input-row {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    border: var(--tdv-border);
+    max-width: 280px;
+    background: rgba(255, 255, 255, 0.02);
+    transition: border-color 0.2s;
+  }
+  .calc-input-row:focus-within {
+    border-color: var(--tdv-red);
+  }
+  .calc-currency {
+    padding: 0 12px;
+    font-family: var(--tdv-mono);
+    font-size: 14px;
+    color: var(--tdv-red);
+    flex-shrink: 0;
+    border-right: var(--tdv-border);
+    line-height: 40px;
+  }
+  .calc-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-family: var(--tdv-mono);
+    font-size: 16px;
+    color: var(--tdv-ink);
+    padding: 0 12px;
+    height: 40px;
+    min-width: 0;
+  }
+  .calc-input::placeholder {
+    color: var(--tdv-ink3);
+  }
+  .calc-input::-webkit-inner-spin-button,
+  .calc-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+  }
+  .calc-results {
+    margin-top: 20px;
+    padding: 18px 20px;
+    border-left: 2px solid var(--tdv-red);
+    background: rgba(200, 41, 30, 0.04);
+    display: grid;
+    gap: 8px;
+  }
+  .calc-result-main {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+  .calc-ore {
+    font-family: var(--tdv-serif);
+    font-style: italic;
+    font-size: 36px;
+    color: var(--tdv-red);
+    line-height: 1;
+  }
+  .calc-ore-label {
+    font-size: 11px;
+    color: var(--tdv-ink3);
+    letter-spacing: 0.06em;
+  }
+  .calc-result-sub {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--tdv-ink2);
+    align-items: center;
+  }
+  .calc-sep {
+    color: var(--tdv-ink3);
+  }
+  .calc-pct-warn {
+    color: var(--tdv-red);
+  }
+  .calc-paga {
+    font-size: 10px;
+    color: var(--tdv-ink3);
+    margin-top: 4px;
+    letter-spacing: 0.04em;
+  }
+  .calc-paga strong {
+    color: var(--tdv-ink2);
   }
 
   /* ─── Azioni ─── */
@@ -1174,6 +1414,16 @@
     .chart-col,
     .legend-col {
       padding: 20px 16px;
+    }
+    .calcolatore {
+      padding: 24px 16px;
+    }
+    .mb-row {
+      flex-direction: column;
+      gap: 2px;
+    }
+    .mb-v {
+      text-align: left;
     }
   }
 </style>
