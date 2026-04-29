@@ -319,6 +319,21 @@
       maximumFractionDigits: 0
     });
   }
+
+  const contrattoLabel = $derived.by(() => {
+    const p = $profilo;
+    if (!p) return '';
+    switch (p.tipo_contratto) {
+      case 'indeterminato': return 'Contratto indeterminato';
+      case 'parttime': return p.percentuale_parttime
+        ? `Part-time ${Math.round(p.percentuale_parttime * 100)}%`
+        : 'Part-time';
+      case 'partiva': return 'Partita IVA — gestione separata';
+      case 'dottorato': return 'Borsa di dottorato';
+      case 'nero': return 'Lavoro non regolamentato';
+      default: return p.tipo_contratto;
+    }
+  });
 </script>
 
 <svelte:head>
@@ -513,73 +528,92 @@
       Scarica come immagine
     </div>
 
-    <!-- Card catturata da html-to-image. Stili critici inline per fedeltà render. -->
-    <div
-      class="export-card"
-      bind:this={exportCardEl}
-      aria-hidden="true"
-    >
+    <!-- Poster verticale — catturato da html-to-image al click.
+         Colori hardcoded (no CSS vars) per fedeltà indipendente dal tema. -->
+    <div class="export-card" bind:this={exportCardEl} aria-hidden="true">
+
+      <!-- Header brandline -->
       <div class="ec-header">
-        <span class="ec-app">TEMPO DI VITA</span>
-        <span class="ec-meta">{$profilo?.nome_provincia?.toUpperCase()} · {new Date().getFullYear()}</span>
+        <span class="ec-brand">TEMPO DI VITA</span>
+        <span class="ec-year">IT · {new Date().getFullYear()}</span>
       </div>
 
+      <div class="ec-hr"></div>
+
+      <!-- Luogo e contratto -->
+      <div class="ec-location">
+        <div class="ec-city">{$profilo.nome_provincia.toUpperCase()}</div>
+        <div class="ec-region">{$profilo.regione.replace(/-/g, ' ')}</div>
+        <div class="ec-contract">{$profilo.settore_nome} · {contrattoLabel}</div>
+      </div>
+
+      <div class="ec-hr"></div>
+
+      <!-- Headline politica: l'affitto -->
       <div class="ec-headline">
-        Lavori <span class="ec-n">{giorniAffitto}</span> giorni<br />al mese per l'affitto.
+        Lavori <span class="ec-hn">{giorniAffitto}</span> giorni<br />al mese per l'affitto.
       </div>
 
-      <div class="ec-metrics">
-        <div class="ec-metric">
-          <div class="ec-mv">{formatEuro($risultatoFiscale.netto_mensile)}</div>
-          <div class="ec-ml">netto mensile</div>
-        </div>
-        <div class="ec-sep">·</div>
-        <div class="ec-metric">
-          <div class="ec-mv">{oreLiberoSettimana}h</div>
-          <div class="ec-ml">libero reale/settimana</div>
-        </div>
-        <div class="ec-sep">·</div>
-        <div class="ec-metric">
-          <div class="ec-mv">{Math.round($risultatoFiscale.cuneo_fiscale_percentuale * 100)}%</div>
-          <div class="ec-ml">cuneo fiscale sul lordo</div>
-        </div>
-      </div>
+      <div class="ec-hr"></div>
 
-      <div class="ec-breakdown">
-        {#each segmenti as s (s.id)}
-          <div class="ec-bar-row">
-            <div class="ec-bar-label">{s.label}</div>
-            <div class="ec-bar-track">
-              <div
-                class="ec-bar-fill"
-                style:width="{Math.round((s.ore / ($breakdownTemporale?.ore_totali_mese ?? 730)) * 100)}%"
-                style:background={s.colore}
-              ></div>
-            </div>
-            <div class="ec-bar-val">{Math.round(s.ore)}h</div>
+      <!-- Dati fiscali -->
+      <div class="ec-data">
+        <div class="ec-row">
+          <span class="ec-key">NETTO MENSILE</span>
+          <span class="ec-val ec-val-red">{formatEuro($risultatoFiscale.netto_mensile)}</span>
+        </div>
+        {#if lordoAnnuoAttuale > 0}
+          <div class="ec-row">
+            <span class="ec-key">RAL ANNUO</span>
+            <span class="ec-val">{formatEuro(lordoAnnuoAttuale)}</span>
           </div>
-        {/each}
+        {/if}
+        <div class="ec-row">
+          <span class="ec-key">TEMPO LIBERO REALE</span>
+          <span class="ec-val">{oreLiberoSettimana}h/settimana</span>
+        </div>
       </div>
 
-      <div class="ec-footer">
-        <div class="ec-prof">
-          {$profilo?.settore_nome} · {$profilo?.tipo_contratto === 'nero' ? 'Lavoro non regolamentato' : $profilo?.tipo_contratto}
+      <!-- Barra cuneo fiscale -->
+      <div class="ec-cuneo">
+        <div class="ec-cuneo-head">
+          <span class="ec-key">CUNEO FISCALE</span>
+          <span class="ec-cuneo-pct">{Math.round($risultatoFiscale.cuneo_fiscale_percentuale * 100)}%</span>
         </div>
-        <div class="ec-url">life-time-eosin.vercel.app · ±3% · dati aperti</div>
+        <div class="ec-cuneo-bar">
+          <div
+            class="ec-cuneo-fill"
+            style:width="{Math.round($risultatoFiscale.cuneo_fiscale_percentuale * 100)}%"
+          ></div>
+        </div>
+        <div class="ec-cuneo-leg">
+          <span>Tasse &amp; contributi · {Math.round($risultatoFiscale.cuneo_fiscale_percentuale * 100)}%</span>
+          <span>In tasca · {100 - Math.round($risultatoFiscale.cuneo_fiscale_percentuale * 100)}%</span>
+        </div>
+      </div>
+
+      <div class="ec-hr"></div>
+
+      <!-- Footer -->
+      <div class="ec-footer">
+        <span class="ec-footer-note">dati pubblici · calcoli verificabili · ±3% · nessun tracciamento</span>
+        <span class="ec-footer-url">life-time-eosin.vercel.app</span>
       </div>
     </div>
 
-    <button
-      type="button"
-      class="tdv-btn-ghost export-btn"
-      onclick={esportaPng}
-      disabled={esportando}
-    >
-      {esportando ? 'Generazione in corso…' : '↓ Scarica PNG (×2 retina)'}
-    </button>
-    <p class="tdv-privacy-note">
-      L'immagine è generata interamente nel tuo browser. Nessun dato inviato a server.
-    </p>
+    <div class="export-actions">
+      <button
+        type="button"
+        class="tdv-btn-ghost export-btn"
+        onclick={esportaPng}
+        disabled={esportando}
+      >
+        {esportando ? 'Generazione in corso…' : '↓ Scarica PNG'}
+      </button>
+      <p class="tdv-privacy-note">
+        Generata nel browser · nessun dato inviato a server
+      </p>
+    </div>
   </section>
 
   <!-- ─── Azioni ─── -->
@@ -912,141 +946,191 @@
   .export-section {
     padding: 32px;
     border-bottom: var(--tdv-border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .export-section > .tdv-section-label {
+    align-self: flex-start;
+    width: 100%;
   }
 
+  /* Poster verticale 430px — colori hardcoded (no CSS vars): il PNG
+     deve essere sempre dark indipendentemente da light mode OS. */
   .export-card {
-    width: 720px;
+    width: 430px;
+    max-width: 100%;
     background: #0a0a08;
-    border: 1px solid rgba(240, 237, 230, 0.12);
-    padding: 40px 44px 36px;
+    border: 1px solid rgba(240, 237, 230, 0.10);
+    border-left: 4px solid #c8291e;
+    padding: 32px 30px 28px;
     font-family: 'IBM Plex Mono', ui-monospace, monospace;
     color: #f0ede6;
     margin-bottom: 16px;
+    box-sizing: border-box;
   }
 
   .ec-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 32px;
+    margin-bottom: 20px;
   }
-  .ec-app {
-    font-size: 9px;
-    letter-spacing: 0.22em;
+  .ec-brand {
+    font-size: 8px;
+    letter-spacing: 0.24em;
     color: #c8291e;
-    font-weight: 600;
+    font-weight: 700;
+    text-transform: uppercase;
   }
-  .ec-meta {
-    font-size: 9px;
+  .ec-year {
+    font-size: 8px;
     letter-spacing: 0.14em;
+    color: #3a3a38;
+  }
+
+  .ec-hr {
+    height: 1px;
+    background: rgba(240, 237, 230, 0.08);
+    margin: 18px 0;
+  }
+
+  .ec-location {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .ec-city {
+    font-size: 28px;
+    font-weight: 700;
+    color: #f0ede6;
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+  }
+  .ec-region {
+    font-size: 9px;
+    letter-spacing: 0.1em;
     color: #5a5850;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+  .ec-contract {
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    color: #a09e96;
+    margin-top: 2px;
   }
 
   .ec-headline {
     font-family: 'Playfair Display', 'Times New Roman', serif;
-    font-size: 42px;
     font-style: italic;
     font-weight: 700;
-    line-height: 1.1;
+    font-size: 30px;
+    line-height: 1.15;
     color: #f0ede6;
-    margin-bottom: 28px;
   }
-  .ec-n {
+  .ec-hn {
     color: #c8291e;
     font-style: normal;
   }
 
-  .ec-metrics {
+  .ec-data {
     display: flex;
-    align-items: flex-end;
-    gap: 20px;
-    padding: 20px 0;
-    border-top: 1px solid rgba(240, 237, 230, 0.08);
-    border-bottom: 1px solid rgba(240, 237, 230, 0.08);
-    margin-bottom: 24px;
+    flex-direction: column;
+    gap: 10px;
   }
-  .ec-metric {
-    flex: 1;
+  .ec-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
   }
-  .ec-mv {
-    font-family: 'Playfair Display', 'Times New Roman', serif;
-    font-style: italic;
-    font-size: 26px;
-    color: #f0ede6;
-    line-height: 1;
-    margin-bottom: 6px;
-  }
-  .ec-ml {
+  .ec-key {
     font-size: 8px;
     letter-spacing: 0.12em;
     text-transform: uppercase;
     color: #5a5850;
-  }
-  .ec-sep {
-    color: #3a3a38;
-    font-size: 20px;
-    padding-bottom: 20px;
-  }
-
-  .ec-breakdown {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-bottom: 24px;
-  }
-  .ec-bar-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  .ec-bar-label {
-    font-size: 8px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: #a09e96;
-    width: 130px;
     flex-shrink: 0;
   }
-  .ec-bar-track {
-    flex: 1;
-    height: 3px;
-    background: rgba(240, 237, 230, 0.06);
+  .ec-val {
+    font-family: 'Playfair Display', 'Times New Roman', serif;
+    font-style: italic;
+    font-size: 20px;
+    color: #f0ede6;
+    line-height: 1;
   }
-  .ec-bar-fill {
+  .ec-val-red { color: #c8291e; }
+
+  .ec-cuneo {
+    margin-top: 4px;
+  }
+  .ec-cuneo-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 8px;
+  }
+  .ec-cuneo-pct {
+    font-family: 'Playfair Display', 'Times New Roman', serif;
+    font-style: italic;
+    font-size: 22px;
+    color: #c8291e;
+  }
+  .ec-cuneo-bar {
+    height: 5px;
+    background: rgba(240, 237, 230, 0.06);
+    margin-bottom: 6px;
+    position: relative;
+  }
+  .ec-cuneo-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
     height: 100%;
+    background: #c8291e;
     min-width: 2px;
   }
-  .ec-bar-val {
-    font-size: 9px;
-    color: #5a5850;
-    width: 32px;
-    text-align: right;
-    flex-shrink: 0;
-    font-variant-numeric: tabular-nums;
+  .ec-cuneo-leg {
+    display: flex;
+    justify-content: space-between;
+    font-size: 7px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #3a3a38;
   }
 
   .ec-footer {
     display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    padding-top: 16px;
-    border-top: 1px solid rgba(240, 237, 230, 0.06);
+    flex-direction: column;
+    gap: 4px;
   }
-  .ec-prof {
-    font-size: 9px;
+  .ec-footer-note {
+    font-size: 7px;
+    letter-spacing: 0.08em;
+    color: #3a3a38;
+    text-transform: uppercase;
+    line-height: 1.5;
+  }
+  .ec-footer-url {
+    font-size: 8px;
     letter-spacing: 0.1em;
     color: #5a5850;
     text-transform: uppercase;
   }
-  .ec-url {
-    font-size: 8px;
-    letter-spacing: 0.1em;
-    color: #3a3a38;
-    text-transform: uppercase;
-  }
 
+  .export-actions {
+    width: 430px;
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+  }
   .export-btn {
-    width: 720px;
+    width: 100%;
+  }
+  .export-actions .tdv-privacy-note {
+    text-align: center;
   }
 
   /* responsive */
@@ -1074,6 +1158,22 @@
     }
     .hero-title {
       font-size: 32px;
+    }
+    .export-section {
+      padding: 24px 16px;
+    }
+    .azioni {
+      padding: 24px 16px;
+    }
+    .costi {
+      padding: 24px 16px;
+    }
+    .cta {
+      padding: 24px 16px;
+    }
+    .chart-col,
+    .legend-col {
+      padding: 20px 16px;
     }
   }
 </style>

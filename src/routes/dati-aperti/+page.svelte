@@ -454,7 +454,12 @@
     <div class="tdv-network-legend">
       <span class="legend-item root"><span class="dot"></span>app</span>
       <span class="legend-item cat"><span class="dot"></span>categoria</span>
-      <span class="legend-item src"><span class="dot"></span>fonte — clicca per aprire</span>
+      <!-- Il testo cambia via CSS in base al tipo di puntatore disponibile -->
+      <span class="legend-item src">
+        <span class="dot"></span>
+        <span class="hint-pointer">fonte — clicca per aprire</span>
+        <span class="hint-touch">fonte — tocca per aprire</span>
+      </span>
     </div>
 
     <div class="tdv-network-wrap" bind:this={containerEl}>
@@ -489,6 +494,12 @@
         </div>
       {/if}
     </div>
+
+    <!-- Nota mobile: visibile solo su touch (via CSS), rimanda alle schede sotto -->
+    <p class="mobile-graph-note">
+      <span class="tdv-triangle"></span>
+      Tocca un nodo per aprire la fonte. Scorri giù per le schede con tutti i link.
+    </p>
 
     <!-- Fallback tabellare per screen reader / no-JS -->
     <table class="sr-only" aria-label="Elenco fonti dati">
@@ -826,6 +837,30 @@
     border: 0;
   }
 
+  /* ─── Pointer / touch hint ───────────────────────────────── */
+  /* Dispositivi con hover fine (mouse) */
+  @media (hover: hover) and (pointer: fine) {
+    .hint-pointer { display: inline; }
+    .hint-touch   { display: none; }
+    .mobile-graph-note { display: none; }
+  }
+  /* Touch/stylus: nessun hover affidabile */
+  @media (hover: none), (pointer: coarse) {
+    .hint-pointer { display: none; }
+    .hint-touch   { display: inline; }
+    .mobile-graph-note {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 10px;
+      color: var(--tdv-ink3);
+      line-height: 1.6;
+      border-left: 2px solid var(--tdv-red);
+      padding: 8px 12px;
+      margin-top: 8px;
+    }
+  }
+
   /* ─── Responsive ─────────────────────────────────────────── */
   @media (max-width: 640px) {
     .tdv-dati-page {
@@ -838,6 +873,10 @@
     }
     .tdv-node-tooltip {
       display: none;
+    }
+    /* Riduce la rigidità della griglia card su mobile */
+    .tdv-sources-grid {
+      grid-template-columns: 1fr;
     }
   }
 
