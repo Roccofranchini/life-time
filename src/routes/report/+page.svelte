@@ -56,6 +56,8 @@
   let segmentoSelezionato = $state<Segmento | null>(null);
   let mostraShareConferma = $state(false);
   let ctaLocali = $state<CtaEntry[]>([]);
+  let esportando = $state(false);
+  let exportCardEl = $state<HTMLDivElement | null>(null);
 
   // ─── inizializzazione ────────────────────────────────────────────
   onMount(() => {
@@ -263,6 +265,30 @@
     goto('/');
   }
 
+  async function esportaPng() {
+    if (!exportCardEl) return;
+    esportando = true;
+    try {
+      // Doppia chiamata: la prima carica i font in cache, la seconda li renderizza.
+      // Workaround noto di html-to-image per Google Fonts caricati async.
+      const { toPng } = await import('html-to-image');
+      await toPng(exportCardEl);
+      const dataUrl = await toPng(exportCardEl, {
+        cacheBust: true,
+        pixelRatio: 2,
+        backgroundColor: '#0a0a08'
+      });
+      const a = document.createElement('a');
+      a.download = `tempo-di-vita-${($profilo?.nome_provincia ?? 'report').toLowerCase().replace(/\s+/g, '-')}.png`;
+      a.href = dataUrl;
+      a.click();
+    } catch (err) {
+      console.error('Export PNG fallito:', err);
+    } finally {
+      esportando = false;
+    }
+  }
+
   // ─── Meta ────────────────────────────────────────────────────────
   const metaTitle = $derived(
     data.fromUrl
@@ -464,6 +490,82 @@
       </ul>
     </section>
   {/if}
+
+  <!-- ─── Export card ─── -->
+  <section class="export-section">
+    <div class="tdv-section-label">
+      <span class="tdv-star dim"></span>
+      Scarica come immagine
+    </div>
+
+    <!-- Card catturata da html-to-image. Stili critici inline per fedeltà render. -->
+    <div
+      class="export-card"
+      bind:this={exportCardEl}
+      aria-hidden="true"
+    >
+      <div class="ec-header">
+        <span class="ec-app">TEMPO DI VITA</span>
+        <span class="ec-meta">{$profilo?.nome_provincia?.toUpperCase()} · {new Date().getFullYear()}</span>
+      </div>
+
+      <div class="ec-headline">
+        Lavori <span class="ec-n">{giorniAffitto}</span> giorni<br />al mese per l'affitto.
+      </div>
+
+      <div class="ec-metrics">
+        <div class="ec-metric">
+          <div class="ec-mv">{formatEuro($risultatoFiscale.netto_mensile)}</div>
+          <div class="ec-ml">netto mensile</div>
+        </div>
+        <div class="ec-sep">·</div>
+        <div class="ec-metric">
+          <div class="ec-mv">{oreLiberoSettimana}h</div>
+          <div class="ec-ml">libero reale/settimana</div>
+        </div>
+        <div class="ec-sep">·</div>
+        <div class="ec-metric">
+          <div class="ec-mv">{Math.round($risultatoFiscale.cuneo_fiscale_percentuale * 100)}%</div>
+          <div class="ec-ml">cuneo fiscale sul lordo</div>
+        </div>
+      </div>
+
+      <div class="ec-breakdown">
+        {#each segmenti as s (s.id)}
+          <div class="ec-bar-row">
+            <div class="ec-bar-label">{s.label}</div>
+            <div class="ec-bar-track">
+              <div
+                class="ec-bar-fill"
+                style:width="{Math.round((s.ore / ($breakdownTemporale?.ore_totali_mese ?? 730)) * 100)}%"
+                style:background={s.colore}
+              ></div>
+            </div>
+            <div class="ec-bar-val">{Math.round(s.ore)}h</div>
+          </div>
+        {/each}
+      </div>
+
+      <div class="ec-footer">
+        <div class="ec-prof">
+          {$profilo?.settore_nome} · {$profilo?.tipo_contratto === 'nero' ? 'Lavoro non regolamentato' : $profilo?.tipo_contratto}
+        </div>
+        <div class="ec-url">life-time-eosin.vercel.app · ±3% · dati aperti</div>
+      </div>
+    </div>
+
+    <button
+      type="button"
+      class="tdv-btn-ghost export-btn"
+      onclick={esportaPng}
+      disabled={esportando}
+    >
+      {esportando ? 'Generazione in corso…' : '↓ Scarica PNG (×2 retina)'}
+    </button>
+    <p class="tdv-privacy-note">
+      L'immagine è generata interamente nel tuo browser. Nessun dato inviato a server.
+    </p>
+  </section>
 
   <!-- ─── Azioni ─── -->
   <section class="azioni">
@@ -789,6 +891,147 @@
     padding: 80px 32px;
     text-align: center;
     color: var(--tdv-ink3);
+  }
+
+  /* ─── Export section ─── */
+  .export-section {
+    padding: 32px;
+    border-bottom: var(--tdv-border);
+  }
+
+  .export-card {
+    width: 720px;
+    background: #0a0a08;
+    border: 1px solid rgba(240, 237, 230, 0.12);
+    padding: 40px 44px 36px;
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    color: #f0ede6;
+    margin-bottom: 16px;
+  }
+
+  .ec-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+  }
+  .ec-app {
+    font-size: 9px;
+    letter-spacing: 0.22em;
+    color: #c8291e;
+    font-weight: 600;
+  }
+  .ec-meta {
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    color: #5a5850;
+  }
+
+  .ec-headline {
+    font-family: 'Playfair Display', 'Times New Roman', serif;
+    font-size: 42px;
+    font-style: italic;
+    font-weight: 700;
+    line-height: 1.1;
+    color: #f0ede6;
+    margin-bottom: 28px;
+  }
+  .ec-n {
+    color: #c8291e;
+    font-style: normal;
+  }
+
+  .ec-metrics {
+    display: flex;
+    align-items: flex-end;
+    gap: 20px;
+    padding: 20px 0;
+    border-top: 1px solid rgba(240, 237, 230, 0.08);
+    border-bottom: 1px solid rgba(240, 237, 230, 0.08);
+    margin-bottom: 24px;
+  }
+  .ec-metric {
+    flex: 1;
+  }
+  .ec-mv {
+    font-family: 'Playfair Display', 'Times New Roman', serif;
+    font-style: italic;
+    font-size: 26px;
+    color: #f0ede6;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .ec-ml {
+    font-size: 8px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #5a5850;
+  }
+  .ec-sep {
+    color: #3a3a38;
+    font-size: 20px;
+    padding-bottom: 20px;
+  }
+
+  .ec-breakdown {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+  .ec-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .ec-bar-label {
+    font-size: 8px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #a09e96;
+    width: 130px;
+    flex-shrink: 0;
+  }
+  .ec-bar-track {
+    flex: 1;
+    height: 3px;
+    background: rgba(240, 237, 230, 0.06);
+  }
+  .ec-bar-fill {
+    height: 100%;
+    min-width: 2px;
+  }
+  .ec-bar-val {
+    font-size: 9px;
+    color: #5a5850;
+    width: 32px;
+    text-align: right;
+    flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .ec-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding-top: 16px;
+    border-top: 1px solid rgba(240, 237, 230, 0.06);
+  }
+  .ec-prof {
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    color: #5a5850;
+    text-transform: uppercase;
+  }
+  .ec-url {
+    font-size: 8px;
+    letter-spacing: 0.1em;
+    color: #3a3a38;
+    text-transform: uppercase;
+  }
+
+  .export-btn {
+    width: 720px;
   }
 
   /* responsive */
