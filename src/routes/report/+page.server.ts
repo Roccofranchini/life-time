@@ -176,6 +176,9 @@ export const load: PageServerLoad = async ({ url, setHeaders }) => {
     'it-IT'
   )}€ · ±3% · Dati pubblici · nessun tracciamento.`;
 
+  // URL immagine OG — stessi params dello share link, mai numeri.
+  const ogImageUrl = `/api/og?p=${p}&s=${s}&c=${c}${pt ? `&pt=${pt}` : ''}`;
+
   return {
     fromUrl: true as const,
     profilo,
@@ -184,6 +187,6 @@ export const load: PageServerLoad = async ({ url, setHeaders }) => {
     survival,
     breakdown,
     cta,
-    meta: { title: titolo, description: descrizione }
+    meta: { title: titolo, description: descrizione, ogImageUrl }
   };
 };

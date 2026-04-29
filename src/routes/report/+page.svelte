@@ -305,6 +305,13 @@
         : 'Stima del costo della vita in ore di lavoro'
   );
 
+  // og:image disponibile solo per link condivisi (il server calcola l'URL).
+  // Per il flusso wizard i numeri sono nello store client-side e non abbiamo
+  // un URL canonico da passare all'endpoint OG.
+  const ogImageUrl = $derived(
+    data.fromUrl ? `${$page.url.origin}${data.meta.ogImageUrl}` : null
+  );
+
   function formatEuro(n: number): string {
     return n.toLocaleString('it-IT', {
       style: 'currency',
@@ -320,7 +327,15 @@
   <meta property="og:title" content={metaTitle} />
   <meta property="og:description" content={metaDesc} />
   <meta property="og:type" content="article" />
-  <meta name="twitter:card" content="summary_large_image" />
+  {#if ogImageUrl}
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content={ogImageUrl} />
+  {:else}
+    <meta name="twitter:card" content="summary" />
+  {/if}
   <meta name="twitter:title" content={metaTitle} />
   <meta name="twitter:description" content={metaDesc} />
 </svelte:head>
