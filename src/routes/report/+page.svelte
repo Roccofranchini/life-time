@@ -254,6 +254,71 @@
     };
   });
 
+  // ─── Timeline giornata tipo ──────────────────────────────────────
+  // Ripartizione media su 30 giorni: ogni valore mensile / 30
+  const tl = $derived.by(() => {
+    const b = $breakdownTemporale;
+    if (!b) return null;
+    const sRes = Math.max(0, b.ore_lavoro - b.ore_sopravvivenza - b.ore_stato - b.ore_capitale);
+    const D = 30;
+    return {
+      sonno:           b.ore_sonno / D,
+      sopravvivenza:   b.ore_sopravvivenza / D,
+      stato:           b.ore_stato / D,
+      capitale:        b.ore_capitale / D,
+      salarioResiduo:  sRes / D,
+      vitaBiologica:   b.ore_vita_biologica / D,
+      libero:          b.ore_libero_reale / D,
+      totale:          b.ore_totali_mese / D  // ~24.33
+    };
+  });
+
+  // ─── Modalità obiettivo ──────────────────────────────────────────
+  // ore_libero_reale = 310 - ore_lavoro_mensili  (310 = 730 - 240 - 180)
+  // Per avere più tempo libero l'unico leva strutturale è ridurre le ore lavorate.
+  const ORE_LIBERO_BASE = 310;
+  const ORE_FT_MESE = (40 * 52) / 12; // 173.33
+  let targetLiberoGiorno = $state<number>(3);
+  const obiettivoCalc = $derived.by(() => {
+    const b = $breakdownTemporale;
+    const f = $risultatoFiscale;
+    const c = $costiProvincia;
+    if (!b || !f || !c) return null;
+
+    const liberoTargetMese = targetLiberoGiorno * 30;
+    const oreNecessarieMese = ORE_LIBERO_BASE - liberoTargetMese;
+
+    if (oreNecessarieMese <= 0) return { tipo: 'nessun_lavoro' as const };
+    if (oreNecessarieMese > ORE_FT_MESE * 1.5) return { tipo: 'troppo_alto' as const };
+
+    const oreNecessarieSettimana = (oreNecessarieMese * 12) / 52;
+    const pctFulltime = oreNecessarieMese / ORE_FT_MESE;
+
+    // Stima netto con ore ridotte (paga oraria netta invariata — conservativo).
+    const nettoStimato = pagaOrariaNetta * oreNecessarieMese;
+
+    const CONSUMO_BZ = 40;
+    const costiFissi =
+      c.affitto_bilocale_periferia +
+      c.spesa_alimentare_minima +
+      c.bollette_stimate +
+      c.carburante_benzina_litro * CONSUMO_BZ;
+
+    const gap = nettoStimato - costiFissi;
+
+    return {
+      tipo: 'calcolato' as const,
+      oreNecessarieMese,
+      oreNecessarieSettimana,
+      pctFulltime,
+      nettoStimato,
+      costiFissi,
+      gap,
+      liberoAttuali: b.ore_libero_reale,
+      liberoTargetMese
+    };
+  });
+
   // Lordo annuo ricostruito dal CCNL del profilo (per il comparatore città).
   const lordoAnnuoAttuale = $derived.by(() => {
     const p = $profilo;
@@ -497,6 +562,51 @@
     </aside>
   </section>
 
+  <!-- ─── Timeline giornata tipo ─── -->
+  {#if tl}
+  <section class="timeline-section">
+    <div class="tdv-section-label">
+      <span class="tdv-star"></span>
+      La tua giornata media · 24h
+    </div>
+    <p class="tl-intro">
+      Media su 30 giorni — non distingue giorni lavorativi da weekend.
+      Il lavoro si sub-divide internamente in costi e salario.
+    </p>
+
+    <div class="tl-bar-wrap">
+      <div class="tl-bar" role="img" aria-label="Distribuzione 24h della giornata media">
+        <span class="tl-seg" style:flex-grow={tl.sonno}            style:background="var(--tdv-seg-sonno)"          title="Sonno: {tl.sonno.toFixed(1)}h"></span>
+        <span class="tl-seg" style:flex-grow={tl.sopravvivenza}    style:background="var(--tdv-seg-sopravvivenza)"  title="Sopravvivenza: {tl.sopravvivenza.toFixed(1)}h"></span>
+        <span class="tl-seg" style:flex-grow={tl.stato}            style:background="var(--tdv-seg-stato)"          title="Tasse: {tl.stato.toFixed(1)}h"></span>
+        <span class="tl-seg" style:flex-grow={tl.capitale}         style:background="var(--tdv-seg-capitale)"       title="Profitto: {tl.capitale.toFixed(1)}h"></span>
+        {#if tl.salarioResiduo > 0.1}
+          <span class="tl-seg" style:flex-grow={tl.salarioResiduo} style:background="var(--tdv-seg-salario-residuo)" title="Salario residuo: {tl.salarioResiduo.toFixed(1)}h"></span>
+        {/if}
+        <span class="tl-seg" style:flex-grow={tl.vitaBiologica}    style:background="var(--tdv-seg-vita-biologica)" title="Vita biologica: {tl.vitaBiologica.toFixed(1)}h"></span>
+        <span class="tl-seg tl-seg-libero" style:flex-grow={tl.libero} style:background="var(--tdv-seg-libero)"    title="Libero reale: {tl.libero.toFixed(1)}h"></span>
+      </div>
+      <div class="tl-scale" aria-hidden="true">
+        {#each [0, 4, 8, 12, 16, 20, 24] as h}
+          <span style:left="{(h / tl.totale) * 100}%">{h}</span>
+        {/each}
+      </div>
+    </div>
+
+    <ul class="tl-legend">
+      <li><span class="tl-dot" style:background="var(--tdv-seg-sonno)"></span><span class="tl-lname">Sonno</span><span class="tl-lval">{tl.sonno.toFixed(1)}h</span></li>
+      <li><span class="tl-dot" style:background="var(--tdv-seg-sopravvivenza)"></span><span class="tl-lname">Sopravvivenza</span><span class="tl-lval">{tl.sopravvivenza.toFixed(1)}h</span></li>
+      <li><span class="tl-dot" style:background="var(--tdv-seg-stato)"></span><span class="tl-lname">Tasse &amp; INPS</span><span class="tl-lval">{tl.stato.toFixed(1)}h</span></li>
+      <li><span class="tl-dot" style:background="var(--tdv-seg-capitale)"></span><span class="tl-lname">Profitto capitale</span><span class="tl-lval">{tl.capitale.toFixed(1)}h</span></li>
+      {#if tl.salarioResiduo > 0.1}
+        <li><span class="tl-dot" style:background="var(--tdv-seg-salario-residuo)"></span><span class="tl-lname">Salario residuo</span><span class="tl-lval">{tl.salarioResiduo.toFixed(1)}h</span></li>
+      {/if}
+      <li><span class="tl-dot" style:background="var(--tdv-seg-vita-biologica)"></span><span class="tl-lname">Vita biologica</span><span class="tl-lval">{tl.vitaBiologica.toFixed(1)}h</span></li>
+      <li class="tl-libero-row"><span class="tl-dot" style:background="var(--tdv-seg-libero)"></span><span class="tl-lname">Tempo libero reale</span><span class="tl-lval tl-lval-accent">{tl.libero.toFixed(1)}h</span></li>
+    </ul>
+  </section>
+  {/if}
+
   <!-- ─── Costi della provincia ─── -->
   <section class="costi">
     <div class="tdv-section-label">
@@ -602,6 +712,90 @@
       </div>
     {/if}
   </section>
+
+  <!-- ─── Modalità obiettivo ─── -->
+  {#if obiettivoCalc}
+  <section class="obiettivo-section">
+    <div class="tdv-section-label">
+      <span class="tdv-star"></span>
+      Quante ore libere vuoi?
+    </div>
+    <p class="ob-intro">
+      La leva strutturale è una sola: ridurre le ore lavorate.
+      Imposta il tuo obiettivo e vedi cosa cambierebbe.
+    </p>
+
+    <div class="ob-slider-wrap">
+      <label for="obiettivo-range" class="ob-label">
+        Ore libere al giorno:
+        <strong class="ob-target">{targetLiberoGiorno}h</strong>
+        <span class="ob-current">· ora hai <em>{(tempoLiberoReale / 30).toFixed(1)}h</em></span>
+      </label>
+      <input
+        id="obiettivo-range"
+        type="range"
+        min="1"
+        max="10"
+        step="0.5"
+        bind:value={targetLiberoGiorno}
+        class="tdv-range ob-range"
+      />
+      <div class="ob-range-labels" aria-hidden="true">
+        <span>1h</span>
+        <span>5h</span>
+        <span>10h</span>
+      </div>
+    </div>
+
+    {#if obiettivoCalc.tipo === 'nessun_lavoro'}
+      <div class="ob-result ob-result-impossible">
+        <div class="ob-r-title">Matematicamente impossibile</div>
+        <p class="ob-r-body">
+          Con {targetLiberoGiorno}h libere al giorno non resterebbe tempo per lavorare.
+          Il massimo teorico è {(310 / 30).toFixed(1)}h/giorno (zero ore di lavoro).
+        </p>
+      </div>
+    {:else if obiettivoCalc.tipo === 'calcolato'}
+      {@const ob = obiettivoCalc}
+      <div class="ob-result" class:ob-positivo={ob.gap >= 0} class:ob-negativo={ob.gap < 0}>
+        <div class="ob-r-grid">
+          <div class="ob-r-block">
+            <div class="ob-r-n">{ob.oreNecessarieSettimana.toFixed(0)}h/sett</div>
+            <div class="ob-r-l">ore di lavoro necessarie</div>
+          </div>
+          <div class="ob-r-block">
+            <div class="ob-r-n">{Math.round(ob.pctFulltime * 100)}%</div>
+            <div class="ob-r-l">del full-time standard</div>
+          </div>
+          <div class="ob-r-block">
+            <div class="ob-r-n" class:ob-n-red={ob.gap < 0} class:ob-n-green={ob.gap >= 0}>
+              {ob.gap >= 0 ? '+' : ''}{Math.round(ob.gap).toLocaleString('it-IT')}€
+            </div>
+            <div class="ob-r-l">residuo dopo costi fissi/mese</div>
+          </div>
+        </div>
+
+        {#if ob.gap < 0}
+          <div class="ob-warning">
+            <span class="tdv-triangle"></span>
+            Con {ob.oreNecessarieSettimana.toFixed(0)}h/settimana il netto stimato ({formatEuro(Math.round(ob.nettoStimato))}) non coprirebbe i costi fissi
+            di {$profilo?.nome_provincia} ({formatEuro(Math.round(ob.costiFissi))}/mese). Serve un reddito integrativo o una provincia più economica.
+          </div>
+        {:else}
+          <p class="ob-ok">
+            Con {ob.oreNecessarieSettimana.toFixed(0)}h/settimana il tuo netto stimato ({formatEuro(Math.round(ob.nettoStimato))}) coprirebbe i costi fissi
+            lasciando <strong>{formatEuro(Math.round(ob.gap))}/mese</strong> di salario residuo.
+          </p>
+        {/if}
+
+        <p class="ob-caveat">
+          Stima conservativa: assume paga oraria netta invariata. Un part-time può avere paga oraria diversa.
+          ±3% di margine — non è consulenza.
+        </p>
+      </div>
+    {/if}
+  </section>
+  {/if}
 
   <!-- ─── Export card ─── -->
   <section class="export-section">
@@ -1373,6 +1567,215 @@
     text-align: center;
   }
 
+  /* ─── Timeline giornata tipo ─── */
+  .timeline-section {
+    padding: 32px;
+    border-bottom: var(--tdv-border);
+  }
+  .tl-intro {
+    font-size: 11px;
+    color: var(--tdv-ink3);
+    margin: 8px 0 20px;
+    line-height: 1.6;
+  }
+  .tl-bar-wrap {
+    position: relative;
+    margin-bottom: 28px;
+  }
+  .tl-bar {
+    display: flex;
+    width: 100%;
+    height: 36px;
+    overflow: hidden;
+    border: 1px solid var(--tdv-border);
+  }
+  .tl-seg {
+    display: block;
+    height: 100%;
+    min-width: 1px;
+    transition: flex-grow 0.3s ease;
+  }
+  .tl-seg-libero {
+    position: relative;
+  }
+  .tl-scale {
+    position: relative;
+    height: 18px;
+    margin-top: 4px;
+    font-size: 8px;
+    color: var(--tdv-ink3);
+    letter-spacing: 0.08em;
+  }
+  .tl-scale span {
+    position: absolute;
+    transform: translateX(-50%);
+  }
+  .tl-legend {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 24px;
+  }
+  .tl-legend li {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 11px;
+  }
+  .tl-dot {
+    width: 10px;
+    height: 10px;
+    flex-shrink: 0;
+  }
+  .tl-lname {
+    color: var(--tdv-ink2);
+  }
+  .tl-lval {
+    color: var(--tdv-ink3);
+    font-size: 10px;
+    font-variant-numeric: tabular-nums;
+  }
+  .tl-lval-accent {
+    color: var(--tdv-green);
+    font-weight: 600;
+  }
+  .tl-libero-row .tl-lname {
+    color: var(--tdv-ink);
+    font-weight: 600;
+  }
+
+  /* ─── Modalità obiettivo ─── */
+  .obiettivo-section {
+    padding: 32px;
+    border-bottom: var(--tdv-border);
+    max-width: 960px;
+    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .ob-intro {
+    font-size: 11px;
+    color: var(--tdv-ink3);
+    margin: 8px 0 20px;
+    line-height: 1.6;
+  }
+  .ob-slider-wrap {
+    max-width: 480px;
+    margin-bottom: 24px;
+  }
+  .ob-label {
+    display: block;
+    font-size: 11px;
+    color: var(--tdv-ink2);
+    margin-bottom: 10px;
+  }
+  .ob-target {
+    color: var(--tdv-red);
+    font-size: 16px;
+  }
+  .ob-current {
+    font-size: 10px;
+    color: var(--tdv-ink3);
+  }
+  .ob-current em {
+    font-style: normal;
+    color: var(--tdv-green);
+  }
+  .ob-range {
+    width: 100%;
+  }
+  .ob-range-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 8px;
+    color: var(--tdv-ink3);
+    letter-spacing: 0.08em;
+    margin-top: 4px;
+  }
+  .ob-result {
+    padding: 20px 22px;
+    border-left: 3px solid var(--tdv-ink3);
+    background: rgba(255,255,255,0.02);
+    max-width: 640px;
+  }
+  .ob-result-impossible {
+    border-left-color: var(--tdv-ink3);
+  }
+  .ob-positivo {
+    border-left-color: var(--tdv-green);
+    background: rgba(29, 158, 117, 0.05);
+  }
+  .ob-negativo {
+    border-left-color: var(--tdv-red);
+    background: rgba(200, 41, 30, 0.05);
+  }
+  .ob-r-title {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--tdv-ink3);
+    margin-bottom: 8px;
+  }
+  .ob-r-body {
+    font-size: 12px;
+    color: var(--tdv-ink2);
+    line-height: 1.7;
+  }
+  .ob-r-grid {
+    display: flex;
+    gap: 32px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .ob-r-block {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .ob-r-n {
+    font-family: var(--tdv-serif);
+    font-style: italic;
+    font-size: 32px;
+    color: var(--tdv-ink);
+    line-height: 1;
+  }
+  .ob-n-green { color: var(--tdv-green); }
+  .ob-n-red { color: var(--tdv-red); }
+  .ob-r-l {
+    font-size: 9px;
+    color: var(--tdv-ink3);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .ob-warning {
+    font-size: 11px;
+    color: var(--tdv-ink2);
+    border-left: 2px solid var(--tdv-red);
+    padding: 8px 12px;
+    margin-bottom: 12px;
+    display: flex;
+    gap: 8px;
+    line-height: 1.7;
+    background: rgba(200, 41, 30, 0.05);
+  }
+  .ob-ok {
+    font-size: 12px;
+    color: var(--tdv-ink2);
+    line-height: 1.7;
+    margin-bottom: 12px;
+  }
+  .ob-ok strong {
+    color: var(--tdv-green);
+  }
+  .ob-caveat {
+    font-size: 9px;
+    color: var(--tdv-ink3);
+    border-left: 1px solid var(--tdv-border);
+    padding-left: 10px;
+    line-height: 1.6;
+    margin-top: 12px;
+  }
+
   /* responsive */
   @media (max-width: 900px) {
     .content {
@@ -1424,6 +1827,19 @@
     }
     .mb-v {
       text-align: left;
+    }
+    .timeline-section,
+    .obiettivo-section {
+      padding: 24px 16px;
+    }
+    .tl-legend {
+      gap: 8px 16px;
+    }
+    .ob-r-grid {
+      gap: 20px;
+    }
+    .ob-r-n {
+      font-size: 26px;
     }
   }
 </style>
