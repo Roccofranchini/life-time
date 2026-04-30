@@ -16,6 +16,7 @@
 
   import PieChart, { type Segmento } from '$lib/components/PieChart.svelte';
   import ComparatoreCitta from '$lib/components/ComparatoreCitta.svelte';
+  import StoricoChart from '$lib/components/StoricoChart.svelte';
   import ccnlData from '$lib/data/ccnl.json';
   import type { CcnlData } from '$lib/types';
   import {
@@ -645,6 +646,21 @@
     />
   {/if}
 
+  <!-- ─── Storico ─── -->
+  <section class="storico">
+    <div class="tdv-section-label">
+      <span class="tdv-star"></span>
+      Il tuo stipendio nel tempo · 2015 — 2025
+    </div>
+    <p class="storico-intro">
+      Per un profilo tipo (commercio L4, Bologna) i salari sono cresciuti del <strong>+15%</strong>
+      in dieci anni. I costi fissi del <strong>+42%</strong>. Il residuo mensile è passato
+      da <span class="st-pos">+152€</span> a <span class="st-neg">−76€</span>.
+      La crisi non è iniziata nel 2022: era già in corso dal 2019.
+    </p>
+    <StoricoChart />
+  </section>
+
   <!-- ─── CTA locali ─── -->
   {#if ctaLocali.length > 0}
     <section class="cta">
@@ -1230,6 +1246,24 @@
     background: rgba(255, 255, 255, 0.03);
     padding: 3px 8px;
   }
+
+  /* ─── Storico ─── */
+  .storico {
+    padding: 32px;
+    border-bottom: var(--tdv-border);
+  }
+  .storico-intro {
+    font-size: 12px;
+    color: var(--tdv-ink2);
+    line-height: 1.8;
+    max-width: 700px;
+    margin: 8px 0 24px;
+  }
+  .storico-intro strong {
+    color: var(--tdv-ink);
+  }
+  .st-pos { color: var(--tdv-green); font-weight: 700; }
+  .st-neg { color: var(--tdv-red); font-weight: 700; }
 
   /* ─── Calcolatore prezzi ─── */
   .calcolatore {
@@ -1829,7 +1863,8 @@
       text-align: left;
     }
     .timeline-section,
-    .obiettivo-section {
+    .obiettivo-section,
+    .storico {
       padding: 24px 16px;
     }
     .tl-legend {
