@@ -36,7 +36,7 @@ function margineSettore(settoreId: string): number {
  *  - ore_totali_mese: 730 (media convenzionale)
  *  - ore_sonno: 240 (8h × 30)
  *  - ore_lavoro: da contratto (es. 40h × 52 / 12 = 173)
- *  - ore_sopravvivenza: dal SurvivalOutput
+ *  - ore_sopravvivenza: (1−cuneo−margine) × min(1, costi/netto) × ore_lavoro — gross-consistent
  *  - ore_stato: cuneo fiscale × ore_lavoro
  *  - ore_capitale: margine medio di settore × ore_lavoro (surplus estratto)
  *  - ore_vita_biologica: 180 (ISTAT Uso del tempo: pasti+igiene+casa+spostamenti)
@@ -47,11 +47,21 @@ function margineSettore(settoreId: string): number {
 export function calcola_breakdown_temporale(input: TimeInput): TimeBreakdown {
   const { survival, fiscal, ore_lavoro_mensili, settore_id, affitto } = input;
 
-  const ore_sopravvivenza = survival.ore_sopravvivenza;
+  const cuneo = fiscal.cuneo_fiscale_percentuale;
+  const margine = margineSettore(settore_id);
 
-  const ore_stato = Math.max(0, fiscal.cuneo_fiscale_percentuale * ore_lavoro_mensili);
+  const ore_stato = Math.max(0, cuneo * ore_lavoro_mensili);
+  const ore_capitale = Math.max(0, margine * ore_lavoro_mensili);
 
-  const ore_capitale = margineSettore(settore_id) * ore_lavoro_mensili;
+  // Fraction of gross work hours that produces net income (consistent reference frame).
+  // ore_stato and ore_capitale are gross fractions; ore_sopravvivenza must be too,
+  // otherwise segments can exceed ore_lavoro when costi > netto.
+  const fraz_netto = Math.max(0, 1 - cuneo - margine);
+  const fraz_sopravvivenza =
+    fiscal.netto_mensile > 0
+      ? Math.min(1, survival.costo_sopravvivenza_totale / fiscal.netto_mensile)
+      : 1;
+  const ore_sopravvivenza = fraz_netto * fraz_sopravvivenza * ore_lavoro_mensili;
 
   const ore_libere = Math.max(0, ORE_TOTALI_MESE - ORE_SONNO_MESE - ore_lavoro_mensili);
 

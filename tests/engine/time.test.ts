@@ -173,4 +173,70 @@ describe('calcola_breakdown_temporale', () => {
     });
     expect(alto.giorni_affitto).toBeGreaterThan(basso.giorni_affitto);
   });
+
+  it('invariante torta: sopravvivenza + stato + capitale ≤ ore_lavoro (mai overflow)', () => {
+    // Caso surplus (normale)
+    const surplus = calcola_breakdown_temporale({
+      survival,
+      fiscal,
+      lordo_annuo: 25_000,
+      ore_lavoro_mensili: 173,
+      settore_id: 'commercio',
+      affitto: 700
+    });
+    expect(
+      surplus.ore_sopravvivenza + surplus.ore_stato + surplus.ore_capitale
+    ).toBeLessThanOrEqual(surplus.ore_lavoro + 0.01);
+
+    // Caso deficit (costi > netto): sopravvivenza è capped, mai overflow
+    const fiscalBasso = calcola_netto({
+      lordo_annuo: 18_000,
+      tipo_contratto: 'indeterminato',
+      regione: 'emilia-romagna',
+      comune: 'bologna'
+    });
+    const survivalDeficit = calcola_sopravvivenza({
+      affitto: 950,
+      spesa_minima: 400,
+      bollette: 200,
+      carburante_mensile_stimato: 70,
+      netto_mensile: fiscalBasso.netto_mensile,
+      ore_lavoro_mensili: 173
+    });
+    const deficit = calcola_breakdown_temporale({
+      survival: survivalDeficit,
+      fiscal: fiscalBasso,
+      lordo_annuo: 18_000,
+      ore_lavoro_mensili: 173,
+      settore_id: 'commercio',
+      affitto: 950
+    });
+    expect(
+      deficit.ore_sopravvivenza + deficit.ore_stato + deficit.ore_capitale
+    ).toBeLessThanOrEqual(deficit.ore_lavoro + 0.01);
+  });
+
+  it('invariante torta: segmenti torta sommano esattamente a 730h', () => {
+    const out = calcola_breakdown_temporale({
+      survival,
+      fiscal,
+      lordo_annuo: 25_000,
+      ore_lavoro_mensili: 173,
+      settore_id: 'commercio',
+      affitto: 700
+    });
+    const salarioResiduo = Math.max(
+      0,
+      out.ore_lavoro - out.ore_sopravvivenza - out.ore_stato - out.ore_capitale
+    );
+    const totale =
+      out.ore_sonno +
+      out.ore_sopravvivenza +
+      out.ore_stato +
+      out.ore_capitale +
+      salarioResiduo +
+      out.ore_vita_biologica +
+      out.ore_libero_reale;
+    expect(totale).toBeCloseTo(730, 1);
+  });
 });
