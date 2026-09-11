@@ -1,212 +1,159 @@
-# ARCHITECTURE.md — Tempo di Vita
+# ARCHITECTURE.md — Tempo di Vita 2.0
 
 ## Panoramica
 
 ```
-┌─────────────────────────────────────────────────────┐
-│                   BROWSER (client)                  │
-│                                                     │
-│  Wizard onboarding → Store profilo → Dashboard D3  │
-│         (tutto client-side, nessun PII inviato)    │
-└──────────────────────┬──────────────────────────────┘
-                       │ POST /api/calcola
-                       │ GET  /api/costi/:provincia
-                       ▼
-┌─────────────────────────────────────────────────────┐
-│            SVELTEKIT SERVER (Edge Functions)        │
-│                                                     │
-│  ┌────────────────┐   ┌───────────────────────────┐│
-│  │  Motore fiscale│   │  Aggregatore costi vita   ││
-│  │  (TypeScript)  │   │  (fetch + cache Supabase) ││
-│  └────────────────┘   └───────────────────────────┘│
-└──────────────────────┬──────────────────────────────┘
-                       │
-          ┌────────────┴────────────┐
-          ▼                         ▼
-┌─────────────────┐     ┌──────────────────────────┐
-│    SUPABASE     │     │   FONTI DATI PUBBLICHE   │
-│  (cache 7 gg)  │     │  ISTAT / OMI / Mimit     │
-│                 │     │  (solo server-side)       │
-│  - costi_vita  │     └──────────────────────────┘
-│  - province    │
-└─────────────────┘
-
-┌─────────────────────────────────────────────────────┐
-│           DATI STATICI (GitHub, versionati)         │
-│   ccnl.json · aliquote.json · cta.json             │
-│   Aggiornabili via PR · Verificabili da chiunque   │
-└─────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────┐
+│                      BROWSER (client)                        │
+│                                                              │
+│   controlli ──▶ Stato ──▶ risolviIngresso ──▶ calcola()      │
+│      ▲                                            │          │
+│      │                                            ▼          │
+│   URL (?p=MI&s=…)  ◀── statoInQuery ──      Risultato ──▶ UI │
+│                                                              │
+│   Tutto qui dentro. Nessuna richiesta parte durante l'uso.   │
+└───────────────────────────┬──────────────────────────────────┘
+                            │  solo al primo caricamento
+                            ▼
+┌──────────────────────────────────────────────────────────────┐
+│                    SERVER (SvelteKit / Vercel)               │
+│                                                              │
+│   +page.server.ts   rifà lo stesso calcolo per il SSR e i    │
+│                     meta tag del link condiviso              │
+│   /api/og           rifà lo stesso calcolo e disegna il PNG  │
+│                                                              │
+│   Nessun database, nessuna cache, nessuna API esterna.       │
+└──────────────────────────────────────────────────────────────┘
 ```
+
+Server e client chiamano **la stessa funzione sugli stessi dati**: il risultato
+renderizzato dal server non può divergere da quello che compare dopo l'idratazione,
+e l'anteprima social non può mostrare un numero diverso dalla pagina.
 
 ---
 
-## Flusso principale — calcolo "Tempo di Vita"
+## La catena del calcolo
+
+Il modello ha un solo denominatore: il **valore aggiunto prodotto in un'ora di lavoro**.
+Ogni passaggio è una funzione pura e ogni euro finisce in una e una sola destinazione.
 
 ```
-1. Utente seleziona:
-   - Città (provincia ISTAT)
-   - Settore + livello CCNL
-   - Tipo contratto (indeterminato / part-time / P.IVA)
-
-2. Client legge ccnl.json → ottiene minimo lordo mensile
-
-3. POST /api/calcola con { lordo, tipo_contratto, regione, comune }
-   → motore fiscale calcola il NETTO mensile (±3%)
-
-4. GET /api/costi/:provincia
-   → server controlla cache Supabase (TTL 7 giorni)
-   → se scaduta: fetcha ISTAT + OMI + Mimit, aggiorna cache, ritorna dati
-   → ritorna: { affitto_medio, spesa_minima, carburante_litro }
-
-5. Client esegue breakdown temporale:
-   ore_totali_mese = 730 (media)
-   ore_sonno = 8 * 30 = 240
-   ore_lavoro = (ore_settimanali_contrattuali * 52) / 12
-
-   tempo_sopravvivenza_h = (affitto + spesa_minima + bollette_stimate) / (netto / ore_lavoro)
-   tempo_stato_h         = (lordo - netto) / (lordo / ore_lavoro)
-   tempo_capitale_h      = stimato da margine medio di settore (tabella in aliquote.json)
-   tempo_libero_h        = ore_totali_mese - ore_sonno - ore_lavoro
-
-6. D3 renderizza il grafico a torta animato con i 4 segmenti
-
-7. Suggerisce CTA locali filtrando cta.json per provincia
+                    minimo CCNL × mensilità
+                              │
+                              ▼
+                        lordo annuo (RAL)
+                              │
+        ┌─────────────────────┼─────────────────────┐
+        │                     │                     │
+        ▼                     ▼                     ▼
+  contributi            contributi             IRPEF, addizionali
+  lavoratore              datore               − detrazioni
+        │                  + TFR               − taglio del cuneo
+        │                     │                − trattamento integrativo
+        │                     ▼                     │
+        │             costo del lavoro              │
+        │                     │                     │
+        │            ÷ quota lavoro settore         │
+        │                     ▼                     │
+        │             valore aggiunto               │
+        │                     │                     │
+        └──────────┬──────────┴──────────┬──────────┘
+                   ▼                     ▼
+        ╔══════════════════════════════════════════╗
+        ║  profitto + previdenza + imposte + netto ║
+        ║         = valore aggiunto  (esatto)      ║
+        ╚══════════════════════════════════════════╝
+                              │
+                              ▼
+        netto − costi imposti dal lavoro
+        ─────────────────────────────────  = salario orario REALE
+        ore contratto + tragitto + strao
+                              │
+                              ▼
+        costi fissi ÷ salario orario reale = ore di sopravvivenza
 ```
+
+### Perché un solo denominatore
+
+Nella v1 le fette della torta avevano denominatori diversi — il cuneo era una quota
+del salario, il margine una quota del valore aggiunto — e la somma sforava il totale.
+C'era voluta una toppa aritmetica per impedire al grafico di esplodere. Qui le quattro
+destinazioni sono quote di **una stessa somma**, quindi l'overflow non è rappresentabile.
+Il test `le quote sommano a 1` lo verifica su tutte le combinazioni di settore e reddito.
+La storia completa sta in `CRITICA.md` §1.
 
 ---
 
-## Motore fiscale — dettaglio
+## I moduli
 
-File: `src/lib/engine/fiscal.ts`
-
-```typescript
-// Input
-interface FiscalInput {
-  lordo_annuo: number         // RAL
-  tipo_contratto: 'dipendente' | 'parttime' | 'partiva'
-  percentuale_parttime?: number  // es. 0.6 per 60%
-  regione: string             // es. "emilia-romagna"
-  comune: string              // es. "bologna"
-}
-
-// Output
-interface FiscalOutput {
-  netto_mensile: number
-  netto_annuo: number
-  irpef: number
-  addizionale_regionale: number
-  addizionale_comunale: number
-  contributi_inps: number
-  cuneo_fiscale_percentuale: number
-  margine_errore: 0.03        // sempre ±3%
-}
-```
-
-### Algoritmo IRPEF 2024
-
-```
-Scaglioni (da aliquote.json):
-  0     – 28.000  → 23%
-  28.001 – 50.000 → 35%
-  50.001+          → 43%
-
-Detrazione lavoro dipendente:
-  se lordo ≤ 15.000: 1.995 + max(0, 690 * (28.000 - lordo) / 13.000)
-  se lordo ≤ 28.000: 1.910 + (1.370 * (28.000 - lordo) / 13.000)
-  se lordo ≤ 50.000: 1.910 * (50.000 - lordo) / 22.000
-  se lordo >  50.000: 0
-
-INPS dipendente: 9.19% fino a massimale, poi 10.19%
-INPS P.IVA flat: 26.23% (gestione separata INPS)
-```
-
----
-
-## Schema Supabase
-
-```sql
--- Cache costi vita per provincia
-CREATE TABLE costi_vita (
-  id          uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  provincia   char(2) NOT NULL,           -- codice ISTAT es. "BO"
-  voce        text NOT NULL,              -- 'affitto_bilocale' | 'spesa_minima' | 'carburante'
-  valore      numeric(10,2) NOT NULL,
-  fonte       text NOT NULL,              -- 'OMI' | 'ISTAT' | 'Mimit'
-  aggiornato  timestamptz DEFAULT now(),
-  UNIQUE(provincia, voce)
-);
-
--- Indice per TTL check
-CREATE INDEX idx_costi_vita_aggiornato ON costi_vita(aggiornato);
-
--- Province italiane (tabella di lookup)
-CREATE TABLE province (
-  codice      char(2) PRIMARY KEY,
-  nome        text NOT NULL,
-  regione     text NOT NULL,
-  capoluogo   boolean DEFAULT false
-);
-```
-
----
-
-## GitHub Actions — pipeline dati
-
-File: `.github/workflows/update-data.yml`
-
-```yaml
-name: Aggiorna dati pubblici
-on:
-  schedule:
-    - cron: '0 6 1 * *'    # ogni primo del mese alle 06:00
-  workflow_dispatch:        # anche manuale
-
-jobs:
-  scrape:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with: { python-version: '3.12' }
-      - run: pip install pdfplumber httpx supabase-py
-      - run: python data-pipeline/scrape_omi.py
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-      - run: python data-pipeline/scrape_istat.py
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-```
-
----
-
-## SEO e condivisione social
-
-Ogni report genera una URL unica:
-```
-/report?p=BO&s=commercio-4&c=indeterminato
-```
-
-Il server SvelteKit genera i meta tag OG dinamicamente:
-
-```html
-<meta property="og:title" content="Lavori 18 giorni al mese per l'affitto — Tempo di Vita" />
-<meta property="og:description" content="A Bologna, livello 4 Commercio: solo 8 ore/mese di tempo libero reale." />
-<meta property="og:image" content="/api/og?p=BO&s=commercio-4" />
-```
-
-L'immagine OG è generata server-side con `@vercel/og` (Satori).
-
----
-
-## Decisioni architetturali e motivazioni
-
-| Decisione | Alternativa scartata | Motivazione |
+| Modulo | Responsabilità | Non fa |
 |---|---|---|
-| SvelteKit | Next.js | Bundle più piccolo, DX migliore per progetto solo, SSR nativo |
-| CSS custom props | Tailwind | Controllo totale sul design system, nessuna dipendenza di build |
-| Supabase come cache | Redis / Upstash | Free tier generoso, PostgreSQL familiare, niente infra da gestire |
-| Dati CCNL su GitHub | DB remoto | Verificabilità, contributi via PR, nessun endpoint da mantenere |
-| AGPL-3.0 | MIT | Impedisce fork commerciali chiusi; coerente con filosofia del progetto |
-| Nessun auth | JWT / session | Privacy by design; non c'è nulla da proteggere se non raccogli dati |
+| `engine/fiscal.ts` | RAL → netto, RAL → costo del lavoro | non sa nulla di tempo né di costi |
+| `engine/valore.ts` | costo del lavoro → valore aggiunto → 4 quote | non ricalcola il fisco |
+| `engine/tempo.ts` | ore sottratte, salario orario reale | non sa nulla di affitti |
+| `engine/sopravvivenza.ts` | paniere, canone derivato, ore per coprirlo | non sa nulla di fisco |
+| `engine/aiuti.ts` | quali diritti spettano, dati i numeri | non calcola l'ISEE |
+| `engine/index.ts` | compone i quattro in `calcola()` | non contiene formule |
+| `stato.ts` | Stato ⇄ URL, Stato → Ingresso | non calcola |
+| `formato.ts` | ore ed euro in stringa | non arrotonda per finta |
+
+L'ordine in `calcola()` non è arbitrario: il fisco dà il netto, il netto e le ore danno il
+salario orario reale, e solo il salario orario reale permette di convertire i costi in ore.
+
+---
+
+## Dove stanno i numeri
+
+Nessuna cifra vive nel codice. `src/lib/data/` contiene cinque file, ognuno con `fonte`,
+`url` e data di verifica accanto a ogni gruppo di valori:
+
+| File | Contiene |
+|---|---|
+| `aliquote.json` | scaglioni IRPEF, detrazioni, taglio del cuneo, contributi, quote di settore |
+| `ccnl.json` | minimi contrattuali, con il grado di verifica di ogni livello |
+| `province.json` | 107 province: ripartizione, tipo di comune, €/m² |
+| `tempo.json` | costanti temporali, tipi di alloggio, soglie di povertà ISTAT |
+| `aiuti.json` | misure esigibili, soglie, dove si chiedono |
+
+Il motore li legge come moduli TypeScript: Vite li impacchetta nel bundle, quindi non c'è
+nessuna lettura a runtime e nessun punto in cui i dati possano divergere dal repository.
+
+---
+
+## Stato e URL
+
+Lo stato del calcolatore vive nel componente di pagina. La URL lo segue con 250 ms di
+ritardo, riscritta con `history.replaceState` nativo: cambia solo la query, mai il percorso,
+e `history.state` viene ripassato intatto perché il router di SvelteKit non se ne accorga.
+
+Il `replaceState` di SvelteKit **non** è utilizzabile qui: chiamato da dentro un effetto
+rientra nel proprio flush e va in errore al primo aggiornamento, lasciando la URL ferma al
+valore iniziale — con il risultato che il link condiviso mostrerebbe un calcolo diverso da
+quello sullo schermo.
+
+Nella URL finiscono solo scelte. Mai un numero calcolato, mai nulla di identificante.
+
+---
+
+## Rendering senza JavaScript
+
+Requisito del progetto, non cortesia: le larghezze finali dei segmenti sono nel markup
+prodotto dal server e l'animazione di crescita è una `@keyframes` CSS su `scaleX`. Con
+JavaScript disattivato la barra è ferma e corretta; la tabella equivalente è sempre nel DOM,
+dentro un `<details>`, ed è ciò che leggono gli screen reader.
+
+---
+
+## Cosa è stato rimosso nella 2.0
+
+| Rimosso | Perché |
+|---|---|
+| Supabase e cache dei costi | i canoni sono derivati da dati versionati: la cache poteva solo introdurre divergenza |
+| `POST /api/calcola`, `GET /api/costi/:p` | il calcolo è puro e sta nel browser |
+| Route `/report` e store globali | una schermata sola: niente stato da trasportare |
+| D3 | due barre impilate non giustificano 90 kB di libreria |
+| html-to-image e export PNG | l'immagine OG del link condiviso fa lo stesso lavoro, lato server |
+| Globo, comparatore città, serie storica, modalità obiettivo | non passavano la domanda del manifesto |
+
+Il criterio è in `CLAUDE.md`: *"questo aiuta un lavoratore a capire quanto del suo tempo
+viene sottratto?"*. Ciò che non passava l'esame è uscito.

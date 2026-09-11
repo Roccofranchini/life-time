@@ -19,19 +19,31 @@
   --tdv-border: rgba(240, 237, 230, 0.10);
   --tdv-border2: rgba(240, 237, 230, 0.06);
 
-  /* Segmenti torta */
-  --tdv-seg-sopravvivenza: var(--tdv-red);
-  --tdv-seg-stato: var(--tdv-ink3);
-  --tdv-seg-capitale: #3d3d38;
-  --tdv-seg-salario-residuo: #8a3a1e; /* terra bruciata: parte del salario che ti resta */
-  --tdv-seg-sonno: #1a1a17; /* quasi-nero: l'8h inevitabile */
-  --tdv-seg-vita-biologica: #4a3a28; /* marrone: riproduzione sociale */
-  --tdv-seg-libero: var(--tdv-green);
+  /* ── Palette dati ──────────────────────────────────────────────────────
+     Ordine categoriale FISSO, mai ciclato: profitto · previdenza · imposte · netto.
+     Validata con lo strumento della skill dataviz su entrambi i fondali
+     (banda di luminosità, soglia di croma, separazione per daltonismo,
+     soglia a visione normale, contrasto sulla superficie): tutti PASS. */
+  --tdv-dato-1: #d93b2b; /* profitto — resta all'impresa */
+  --tdv-dato-2: #4a90c2; /* previdenza — salario differito */
+  --tdv-dato-3: #b07d15; /* imposte — allo Stato */
+  --tdv-dato-4: #22a97d; /* netto — in tasca */
 
-  /* Alias per tooltip (variazioni richieste dal design) */
+  /* Neutrali per il tempo non contrattato: sempre etichettati direttamente,
+     perché il grigio non porta identità e non deve fingere di portarla. */
+  --tdv-neutro-1: #3f3e39; /* sonno */
+  --tdv-neutro-2: #6b6960; /* cura personale */
+
+  /* Alias per tooltip */
   --tdv-paper-2: #14140f;
   --tdv-ink-2: var(--tdv-ink2);
   --tdv-rosso: var(--tdv-red);
+
+  /* Motion: una sola curva e tre durate, così le animazioni sembrano un sistema */
+  --tdv-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --tdv-fast: 180ms;
+  --tdv-mid: 420ms;
+  --tdv-slow: 900ms;
 
   /* Font */
   --tdv-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
@@ -53,10 +65,15 @@
 
     --tdv-red-dim: rgba(200, 41, 30, 0.10);
 
-    /* Segmenti torta — più leggibili su sfondo chiaro */
-    --tdv-seg-sonno: #c8c5be;
-    --tdv-seg-capitale: #8a8880;
-    --tdv-seg-vita-biologica: #b0a090;
+    /* Palette dati — steps propri per il fondale chiaro, non un ribaltamento
+       automatico: rivalidati sulla superficie #f5f2eb, tutti PASS. */
+    --tdv-dato-1: #c92d1e;
+    --tdv-dato-2: #3a7fb5;
+    --tdv-dato-3: #a5730f;
+    --tdv-dato-4: #12946b;
+
+    --tdv-neutro-1: #c8c5be;
+    --tdv-neutro-2: #9b998f;
 
     --tdv-paper-2: #ece9e2;
   }
@@ -352,4 +369,41 @@ textarea {
   text-align: center;
   margin-top: 10px;
   line-height: 1.6;
+}
+
+/* ── Motion ──────────────────────────────────────────────────────────────────
+   Le animazioni qui servono a far vedere una quantità che cresce da zero e a
+   segnalare che un numero è cambiato. Niente decorazione: se un movimento non
+   spiega qualcosa, non c'è. Chi ha chiesto meno movimento al sistema operativo
+   non ne riceve nessuno. */
+
+@keyframes tdv-sali {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes tdv-appari {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.tdv-sali {
+  animation: tdv-sali var(--tdv-mid) var(--tdv-ease) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Il focus deve restare visibile ovunque: la tastiera non è un ripiego */
+:focus-visible {
+  outline: 2px solid var(--tdv-red);
+  outline-offset: 2px;
 }

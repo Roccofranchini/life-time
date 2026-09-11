@@ -11,9 +11,9 @@
 
   const { messaggi = [
     "il tempo è l'unica risorsa non rinnovabile",
-    'lavori per vivere, o vivi per lavorare',
-    'ogni euro ha un costo in ore di esistenza',
-    'dati pubblici · calcoli aperti · nessun tracciamento'
+    'un prezzo non è mai in euro: è in ore che non tornano',
+    "senza ISEE non scatta nessun bonus — farlo è gratis",
+    'dati pubblici · calcolo aperto · nessun tracciamento'
   ] }: Props = $props();
 
   const rotolo = $derived(

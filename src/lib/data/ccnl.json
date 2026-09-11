@@ -1,103 +1,132 @@
 {
+  "aggiornato": "2026-09-10",
+  "nota": "Ogni livello dichiara come è stato ottenuto nel campo 'verifica': 'tabella' = importo pubblicato dalle parti firmatarie o dai sindacati di categoria; 'riparametrato' = ricavato dalla scala di riparametrazione contrattuale a partire da un livello pubblicato; 'stima' = ordine di grandezza. Chi conosce il proprio lordo non deve usare questa tabella: nell'app c'è l'inserimento diretto, che è sempre più preciso di qualunque minimo tabellare.",
+  "avvertenza": "I minimi contrattuali sono un pavimento, non lo stipendio. Superminimi, scatti di anzianità, indennità, straordinari e premi di risultato non sono qui dentro: la busta paga reale è quasi sempre più alta del minimo, e quasi mai di molto.",
+
   "settori": [
     {
       "id": "commercio",
-      "nome": "Commercio (CCNL Confcommercio)",
-      "fonte": "https://www.confcommercio.it/-/ccnl-terziario-contratto",
-      "aggiornato": "2024-03-01",
+      "nome": "Commercio, terziario e servizi",
+      "sigla_ccnl": "CCNL Terziario Distribuzione e Servizi (Confcommercio · Filcams-Fisascat-UILTuCS)",
+      "fonte": "Rinnovo 22 marzo 2024, vigenza 2023-2027. Minimi tabellari in vigore dal 1° novembre 2026 (quarta tranche: +35 € al IV livello, riparametrati).",
+      "url": "https://www.confcommercio.it/-/ccnl-terziario-distribuzione-servizi-testo-unico-2019",
+      "aggiornato": "2026-11-01",
+      "mensilita": 14,
+      "ore_settimanali": 40,
+      "composizione": "lordo mensile = minimo tabellare + contingenza (congelata dal 1992) + EDR 10,33 €",
       "livelli": [
-        { "livello": "1", "descrizione": "Quadro", "lordo_mensile": 2850 },
-        { "livello": "2", "descrizione": "1ª categoria", "lordo_mensile": 2340 },
-        { "livello": "3", "descrizione": "2ª categoria", "lordo_mensile": 2010 },
-        { "livello": "4", "descrizione": "3ª categoria", "lordo_mensile": 1780 },
-        { "livello": "5", "descrizione": "4ª categoria", "lordo_mensile": 1620 }
+        { "livello": "Q",   "descrizione": "Quadro",                                  "minimo_tabellare": 2243.84, "contingenza": 542.70, "edr": 10.33, "verifica": "riparametrato" },
+        { "livello": "1",   "descrizione": "I — impiegato direttivo, capo reparto",    "minimo_tabellare": 2021.26, "contingenza": 537.52, "edr": 10.33, "verifica": "riparametrato" },
+        { "livello": "2",   "descrizione": "II — impiegato di concetto, capo commesso","minimo_tabellare": 1748.38, "contingenza": 532.54, "edr": 10.33, "verifica": "riparametrato" },
+        { "livello": "3",   "descrizione": "III — commesso specializzato, operaio qualificato", "minimo_tabellare": 1494.41, "contingenza": 527.90, "edr": 10.33, "verifica": "riparametrato" },
+        { "livello": "4",   "descrizione": "IV — commesso, impiegato d'ordine, cassiere", "minimo_tabellare": 1292.46, "contingenza": 524.22, "edr": 10.33, "verifica": "tabella" },
+        { "livello": "5",   "descrizione": "V — operaio comune, addetto vendita",      "minimo_tabellare": 1167.68, "contingenza": 521.05, "edr": 10.33, "verifica": "riparametrato" },
+        { "livello": "6",   "descrizione": "VI — ausiliario, addetto pulizie",         "minimo_tabellare": 1048.32, "contingenza": 517.51, "edr": 10.33, "verifica": "riparametrato" },
+        { "livello": "7",   "descrizione": "VII — personale non qualificato",          "minimo_tabellare": 897.52,  "contingenza": 515.26, "edr": 10.33, "verifica": "riparametrato" }
       ]
     },
     {
       "id": "metalmeccanici",
-      "nome": "Metalmeccanici (CCNL Federmeccanica / FIM-FIOM-UILM)",
-      "fonte": "https://www.fiom-cgil.it/net/industria-privata-e-installazione-impianti/ccnl-federmeccanica",
-      "aggiornato": "2024-06-01",
+      "nome": "Metalmeccanici — industria",
+      "sigla_ccnl": "CCNL Federmeccanica-Assistal (FIM-FIOM-UILM)",
+      "fonte": "Rinnovo novembre 2025, vigenza 2025-2028. Minimi conglobati in vigore dal 1° giugno 2026 (terza tranche: +53,17 € al livello C3, riparametrati).",
+      "url": "https://www.fiom-cgil.it/net/industria-privata-e-installazione-impianti/ccnl-federmeccanica",
+      "aggiornato": "2026-06-01",
+      "mensilita": 13,
+      "ore_settimanali": 40,
+      "composizione": "minimo conglobato (l'ex contingenza è già incorporata)",
       "livelli": [
-        { "livello": "1", "descrizione": "Quadro direttivo", "lordo_mensile": 2980 },
-        { "livello": "2", "descrizione": "5° livello superiore", "lordo_mensile": 2410 },
-        { "livello": "3", "descrizione": "5° livello", "lordo_mensile": 2150 },
-        { "livello": "4", "descrizione": "4° livello", "lordo_mensile": 1960 },
-        { "livello": "5", "descrizione": "3° livello", "lordo_mensile": 1820 },
-        { "livello": "6", "descrizione": "1°/2° livello", "lordo_mensile": 1680 }
+        { "livello": "A1", "descrizione": "A1 — quadro",                       "minimo_tabellare": 2907.01, "contingenza": 0, "edr": 0, "verifica": "tabella" },
+        { "livello": "B3", "descrizione": "B3 — ex 7° livello",                 "minimo_tabellare": 2838.99, "contingenza": 0, "edr": 0, "verifica": "tabella" },
+        { "livello": "B2", "descrizione": "B2 — ex 6° livello",                 "minimo_tabellare": 2542.98, "contingenza": 0, "edr": 0, "verifica": "tabella" },
+        { "livello": "B1", "descrizione": "B1 — ex 5° livello superiore",       "minimo_tabellare": 2370.33, "contingenza": 0, "edr": 0, "verifica": "tabella" },
+        { "livello": "C3", "descrizione": "C3 — ex 5° livello (riferimento)",   "minimo_tabellare": 2211.43, "contingenza": 0, "edr": 0, "verifica": "tabella" },
+        { "livello": "C2", "descrizione": "C2 — ex 4° livello",                 "minimo_tabellare": 2064.88, "contingenza": 0, "edr": 0, "verifica": "tabella" },
+        { "livello": "C1", "descrizione": "C1 — ex 3° livello superiore",       "minimo_tabellare": 2022.12, "contingenza": 0, "edr": 0, "verifica": "tabella" },
+        { "livello": "D2", "descrizione": "D2 — ex 3° livello",                 "minimo_tabellare": 1979.37, "contingenza": 0, "edr": 0, "verifica": "tabella" },
+        { "livello": "D1", "descrizione": "D1 — ex 1°/2° livello, operaio comune", "minimo_tabellare": 1784.94, "contingenza": 0, "edr": 0, "verifica": "tabella" }
       ]
     },
     {
       "id": "logistica",
-      "nome": "Logistica, Trasporto Merci e Spedizione",
-      "fonte": "https://www.filtcgil.it/terra/27-contratti-terra/contratti-trasporto-merci.html",
-      "aggiornato": "2024-03-01",
+      "nome": "Logistica, trasporto merci e spedizione",
+      "sigla_ccnl": "CCNL Logistica Trasporto Merci e Spedizione (Filt-CGIL, Fit-CISL, UilTrasporti)",
+      "fonte": "Rinnovo 6 dicembre 2024. Minimi comprensivi di EPA in vigore dal 1° gennaio 2026 (seconda tranche).",
+      "url": "https://www.filtcgil.it/terra/27-contratti-terra/contratti-trasporto-merci.html",
+      "aggiornato": "2026-01-01",
+      "mensilita": 13,
+      "ore_settimanali": 39,
+      "composizione": "minimo tabellare comprensivo di EPA",
       "livelli": [
-        { "livello": "1", "descrizione": "Quadro", "lordo_mensile": 2780 },
-        { "livello": "2", "descrizione": "3° livello super", "lordo_mensile": 2290 },
-        { "livello": "3", "descrizione": "3° livello", "lordo_mensile": 2060 },
-        { "livello": "4", "descrizione": "4° livello junior", "lordo_mensile": 1870 },
-        { "livello": "5", "descrizione": "5°/6° livello", "lordo_mensile": 1720 }
+        { "livello": "Q",  "descrizione": "Quadro",                          "minimo_tabellare": 2574.98, "contingenza": 0, "edr": 0, "verifica": "tabella" },
+        { "livello": "B3", "descrizione": "Autista B3 — patente CE, ADR",    "minimo_tabellare": 2010.37, "contingenza": 0, "edr": 0, "verifica": "tabella" },
+        { "livello": "6",  "descrizione": "6° livello — magazziniere, facchino, addetto smistamento", "minimo_tabellare": 1648.74, "contingenza": 0, "edr": 0, "verifica": "tabella" }
       ]
     },
     {
       "id": "ristorazione",
-      "nome": "Ristorazione e Pubblici Esercizi (CCNL FIPE)",
-      "fonte": "https://www.fipe.it/category/area-lavoro/testo-ccnl-fipe/",
-      "aggiornato": "2024-01-01",
+      "nome": "Pubblici esercizi, ristorazione e turismo",
+      "sigla_ccnl": "CCNL Turismo Pubblici Esercizi e Ristorazione (FIPE · Filcams-Fisascat-UILTuCS)",
+      "fonte": "Rinnovo 26 maggio 2026, vigenza 2026-2029. Terza tranche in vigore dal 1° giugno 2026 (dal 1° settembre 2026 per la ristorazione collettiva).",
+      "url": "https://www.fipe.it/category/area-lavoro/testo-ccnl-fipe/",
+      "aggiornato": "2026-06-01",
+      "mensilita": 14,
+      "ore_settimanali": 40,
+      "composizione": "minimo tabellare conglobato",
       "livelli": [
-        { "livello": "1", "descrizione": "Quadro A", "lordo_mensile": 2620 },
-        { "livello": "2", "descrizione": "2° livello", "lordo_mensile": 2180 },
-        { "livello": "3", "descrizione": "3° livello", "lordo_mensile": 1890 },
-        { "livello": "4", "descrizione": "4° livello", "lordo_mensile": 1700 },
-        { "livello": "5", "descrizione": "5°/6° livello", "lordo_mensile": 1560 }
+        { "livello": "Q", "descrizione": "Quadro",                                     "minimo_tabellare": 2350, "contingenza": 0, "edr": 0, "verifica": "stima" },
+        { "livello": "4", "descrizione": "4° — cameriere, barista, cuoco di partita",   "minimo_tabellare": 1695.69, "contingenza": 0, "edr": 0, "verifica": "tabella" },
+        { "livello": "6", "descrizione": "6° — commis, aiuto cucina, addetto sala",     "minimo_tabellare": 1350, "contingenza": 0, "edr": 0, "verifica": "stima" }
       ]
     },
     {
       "id": "pubblica-amministrazione",
-      "nome": "Pubblica Amministrazione — Funzioni Centrali (CCNL AraN)",
-      "fonte": "https://www.aranagenzia.it/contrattazione/comparti/funzioni-centrali/contratti/item/13033-ccnl-comparto-funzioni-centrali-2019-2021.html",
-      "aggiornato": "2022-05-09",
+      "nome": "Pubblica amministrazione — funzioni centrali",
+      "sigla_ccnl": "CCNL Comparto Funzioni Centrali 2022-2024 (ARAN)",
+      "fonte": "Sottoscritto il 27 gennaio 2025. Stipendi tabellari unici per area in vigore dal 1° febbraio 2025.",
+      "url": "https://www.aranagenzia.it/contrattazione/comparti/funzioni-centrali.html",
+      "aggiornato": "2025-02-01",
+      "mensilita": 13,
+      "ore_settimanali": 36,
+      "composizione": "stipendio tabellare unico di area. NON comprende l'indennità di amministrazione, che varia molto per ente (da ~100 a ~600 €/mese): il lordo reale è più alto.",
       "livelli": [
-        { "livello": "1", "descrizione": "Elevata Qualificazione (EQ, ex D super)", "lordo_mensile": 2157 },
-        { "livello": "2", "descrizione": "Area Funzionari (ex C)", "lordo_mensile": 1866 },
-        { "livello": "3", "descrizione": "Area Assistenti (ex B super)", "lordo_mensile": 1616 },
-        { "livello": "4", "descrizione": "Area Operatori (ex B base)", "lordo_mensile": 1520 }
-      ]
-    },
-    {
-      "id": "funzioni-locali",
-      "nome": "Enti Locali — Funzioni Locali (CCNL AraN)",
-      "fonte": "https://www.aranagenzia.it/contrattazione/comparti/funzioni-locali/contratti/item/13034-ccnl-comparto-funzioni-locali-2019-2021.html",
-      "aggiornato": "2022-05-16",
-      "livelli": [
-        { "livello": "1", "descrizione": "Elevata Qualificazione (EQ)", "lordo_mensile": 2130 },
-        { "livello": "2", "descrizione": "Area Istruttori Direttivi (ex D)", "lordo_mensile": 1883 },
-        { "livello": "3", "descrizione": "Area Istruttori (ex C)", "lordo_mensile": 1640 },
-        { "livello": "4", "descrizione": "Area Operatori (ex B/A)", "lordo_mensile": 1530 }
+        { "livello": "EP",  "descrizione": "Elevate Professionalità",   "minimo_tabellare": 2886.21, "contingenza": 0, "edr": 0, "verifica": "tabella" },
+        { "livello": "FUN", "descrizione": "Area Funzionari (ex C)",    "minimo_tabellare": 2113.59, "contingenza": 0, "edr": 0, "verifica": "tabella" },
+        { "livello": "ASS", "descrizione": "Area Assistenti (ex B)",    "minimo_tabellare": 1740.36, "contingenza": 0, "edr": 0, "verifica": "tabella" },
+        { "livello": "OPE", "descrizione": "Area Operatori (ex A)",     "minimo_tabellare": 1653.97, "contingenza": 0, "edr": 0, "verifica": "tabella" }
       ]
     },
     {
       "id": "scuola",
-      "nome": "Scuola Pubblica — Personale Docente (CCNL AraN Istruzione e Ricerca)",
-      "fonte": "https://www.aranagenzia.it/contrattazione/comparti/istruzione-e-ricerca/contratti/item/13720-ccnl-istruzione-e-ricerca-2019-2021.html",
-      "aggiornato": "2024-01-18",
+      "nome": "Scuola pubblica — personale docente",
+      "sigla_ccnl": "CCNL Istruzione e Ricerca 2022-2024, settore scuola (ARAN)",
+      "fonte": "Sottoscritto il 23 dicembre 2025, pubblicato in Gazzetta il 16 gennaio 2026. Aumento medio 144 €/mese per il personale docente, in busta paga da gennaio 2026.",
+      "url": "https://www.aranagenzia.it/contrattazione/comparti/istruzione-e-ricerca.html",
+      "aggiornato": "2026-01-01",
+      "mensilita": 13,
+      "ore_settimanali": 18,
+      "composizione": "stipendio tabellare per anzianità. Le 18 ore sono quelle di insegnamento frontale: non comprendono programmazione, correzioni, collegi e ricevimenti.",
       "livelli": [
-        { "livello": "1", "descrizione": "Docente oltre 35 anni di servizio", "lordo_mensile": 2530 },
-        { "livello": "2", "descrizione": "Docente 21-27 anni di servizio", "lordo_mensile": 2120 },
-        { "livello": "3", "descrizione": "Docente 9-14 anni di servizio", "lordo_mensile": 1810 },
-        { "livello": "4", "descrizione": "Docente neoassunto (0-8 anni)", "lordo_mensile": 1700 }
+        { "livello": "35", "descrizione": "Docente sec. II grado, oltre 35 anni",  "minimo_tabellare": 2750, "contingenza": 0, "edr": 0, "verifica": "stima" },
+        { "livello": "21", "descrizione": "Docente, 21-27 anni di servizio",       "minimo_tabellare": 2400, "contingenza": 0, "edr": 0, "verifica": "stima" },
+        { "livello": "9",  "descrizione": "Docente, 9-14 anni di servizio",        "minimo_tabellare": 2150, "contingenza": 0, "edr": 0, "verifica": "stima" },
+        { "livello": "0",  "descrizione": "Docente neoassunto, 0-8 anni",          "minimo_tabellare": 2000, "contingenza": 0, "edr": 0, "verifica": "stima" }
       ]
     },
     {
       "id": "dottorato",
-      "nome": "Borsa di Dottorato di Ricerca (MUR)",
-      "fonte": "https://www.mur.gov.it/it/atti-e-normativa/decreto-ministeriale-13-giugno-2023-n-630",
+      "nome": "Borsa di dottorato di ricerca",
+      "sigla_ccnl": "DM MUR 630/2023 — importo minimo della borsa",
+      "fonte": "Decreto ministeriale 13 giugno 2023 n. 630. La borsa è esente IRPEF ex art. 4 L. 476/1984 e non prevede tredicesima.",
+      "url": "https://www.mur.gov.it/it/atti-e-normativa/decreto-ministeriale-13-giugno-2023-n-630",
       "aggiornato": "2024-01-01",
       "mensilita": 12,
+      "ore_settimanali": 40,
+      "composizione": "importo lordo della borsa; i contributi alla gestione separata sono per due terzi a carico dell'ateneo",
+      "esente_irpef": true,
       "livelli": [
-        { "livello": "1", "descrizione": "Borsa standard (importo minimo DM 630/2023)", "lordo_mensile": 1354 },
-        { "livello": "2", "descrizione": "Borsa con maggiorazione soggiorno estero (+50%)", "lordo_mensile": 2031 }
+        { "livello": "1", "descrizione": "Borsa standard (minimo DM 630/2023)", "minimo_tabellare": 1354, "contingenza": 0, "edr": 0, "verifica": "tabella" },
+        { "livello": "2", "descrizione": "Con maggiorazione per soggiorno estero (+50%)", "minimo_tabellare": 2031, "contingenza": 0, "edr": 0, "verifica": "tabella" }
       ]
     }
   ]
