@@ -8,16 +8,20 @@
 // Satori (SVG) → resvg (PNG). Nessuna chiamata esterna, nessun dato personale:
 // i parametri sono scelte, non risultati.
 
-import { readFileSync } from 'fs';
-import { join } from 'path';
 import satori from 'satori';
 import { Resvg } from '@resvg/resvg-js';
 import type { RequestHandler } from './$types';
 import { calcola } from '$lib/engine';
 import { queryInStato, risolviIngresso, trovaSettore } from '$lib/stato';
 
-const fontRegular = readFileSync(join(process.cwd(), 'static/fonts/ibm-plex-mono-400.ttf'));
-const fontBold = readFileSync(join(process.cwd(), 'static/fonts/ibm-plex-mono-700.ttf'));
+// I font arrivano dal bundle, non dal filesystem: su Vercel la cartella static/
+// è servita dalla CDN e non esiste dentro la funzione serverless. Il plugin
+// `tdv-font-base64` in vite.config.ts li incorpora come stringa base64.
+import fontRegular64 from 'font:ibm-plex-mono-400';
+import fontBold64 from 'font:ibm-plex-mono-700';
+
+const fontRegular = Buffer.from(fontRegular64, 'base64');
+const fontBold = Buffer.from(fontBold64, 'base64');
 
 const W = 1200;
 const H = 630;
