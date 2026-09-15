@@ -1,0 +1,129 @@
+{
+  "aggiornato": "2026-09-10",
+  "nota": "Diritti esigibili, non beneficenza. Ogni voce porta la soglia, l'importo e dove si chiede. Le condizioni sono valutate sui numeri già calcolati e sulle poche opzioni che l'utente sceglie: niente di tutto ciò lascia il browser.",
+  "avvertenza": "Le soglie cambiano ogni anno e i requisiti hanno dettagli che questa scheda non può contenere. Prima di dare per persa una misura, chiedi a un patronato o a un CAF: il servizio è gratuito.",
+
+  "voci": [
+    {
+      "id": "detrazione-affitto-giovani",
+      "titolo": "Detrazione affitto per under 31",
+      "importo": "fino a 2.000 €/anno per 4 anni",
+      "descrizione": "Se hai tra 20 e 30 anni compiuti, sei in affitto con contratto registrato e l'appartamento è la tua abitazione principale, puoi detrarre il 20% del canone annuo: minimo garantito 991,60 €, massimo 2.000 €. Vale per i primi quattro anni di contratto.",
+      "come": "Nel modello 730, rigo E71. Un CAF o un patronato lo compila gratis.",
+      "fonte": "Art. 16 c. 1-ter TUIR",
+      "url": "https://www.agenziaentrate.gov.it/portale/schede/agevolazioni/detrazione-canoni-locazione",
+      "condizioni": { "reddito_complessivo_max": 15493.71, "richiede_affitto": true, "eta_max": 30, "eta_min": 20 },
+      "priorita": 1
+    },
+    {
+      "id": "detrazione-affitto-abitazione",
+      "titolo": "Detrazione affitto — abitazione principale",
+      "importo": "300 € o 150 €/anno",
+      "descrizione": "Chiunque abbia un contratto di locazione dell'abitazione principale ha diritto a una detrazione: 300 € se il reddito complessivo non supera 15.493,71 €, 150 € fino a 30.987,41 €. Non si cumula con quella per under 31: si prende la più conveniente.",
+      "come": "Nel modello 730, quadro E sezione V. CAF o patronato, gratis.",
+      "fonte": "Art. 16 c. 01 TUIR",
+      "url": "https://www.agenziaentrate.gov.it/portale/schede/agevolazioni/detrazione-canoni-locazione",
+      "condizioni": { "reddito_complessivo_max": 30987.41, "richiede_affitto": true },
+      "priorita": 3
+    },
+    {
+      "id": "canone-concordato",
+      "titolo": "Passare al canone concordato",
+      "importo": "fino a 495,80 €/anno di detrazione, più un canone più basso",
+      "descrizione": "Il canone concordato è un contratto 3+2 con affitto calmierato fissato dagli accordi territoriali fra sindacati inquilini e proprietari. Chi lo ha paga meno e detrae di più (495,80 € sotto 15.493,71 € di reddito). Al proprietario conviene: cedolare secca al 10% invece che al 21%. È l'argomento da usare per chiederlo.",
+      "come": "Verifica l'accordo territoriale del tuo comune con un sindacato inquilini (SUNIA, SICET, UNIAT). L'attestazione di conformità è obbligatoria e la rilasciano loro.",
+      "fonte": "L. 431/1998 art. 2 c. 3; art. 16 c. 1 TUIR",
+      "url": "https://www.sunia.it",
+      "condizioni": { "richiede_affitto": true },
+      "priorita": 4
+    },
+    {
+      "id": "bonus-sociale-bollette",
+      "titolo": "Bonus sociale luce, gas, acqua e rifiuti",
+      "importo": "sconto del 30% sull'elettricità, 15% sul gas, 25% sulla TARI",
+      "descrizione": "Con ISEE fino a 9.796 € (20.000 € se hai almeno 4 figli a carico) lo sconto arriva in bolletta da solo: non serve fare domanda. Serve però aver presentato la DSU per l'ISEE — senza quella non scatta niente, ed è il motivo per cui ogni anno centinaia di migliaia di famiglie che ne hanno diritto non lo ricevono.",
+      "come": "Presenta la DSU all'INPS o a un CAF. È gratis e si fa una volta l'anno.",
+      "fonte": "ARERA, delibera sui bonus sociali — soglia ISEE aggiornata a 9.796 € dal 1° gennaio 2026",
+      "url": "https://www.arera.it/bonus-sociale/bonus-sociale-per-disagio-economico",
+      "condizioni": { "richiede_isee": true, "isee_max": 9796, "reddito_complessivo_max": 20000 },
+      "priorita": 2
+    },
+    {
+      "id": "carta-dedicata-a-te",
+      "titolo": "Carta «Dedicata a te»",
+      "importo": "circa 500 € l'anno per la spesa alimentare",
+      "descrizione": "Carta prepagata per l'acquisto di beni alimentari di prima necessità, per nuclei con ISEE fino a 15.000 €. Assegnata automaticamente dai Comuni sulla base delle graduatorie INPS: non si fa domanda, ma serve l'ISEE valido. Non spetta a chi già percepisce ADI o NASpI.",
+      "come": "Basta avere l'ISEE aggiornato. Il Comune avvisa i beneficiari.",
+      "fonte": "Ministero dell'agricoltura, decreto annuale «Dedicata a te»",
+      "url": "https://www.lavoro.gov.it",
+      "condizioni": { "richiede_isee": true, "isee_max": 15000, "reddito_complessivo_max": 22000 },
+      "priorita": 3
+    },
+    {
+      "id": "assegno-inclusione",
+      "titolo": "Assegno di inclusione",
+      "importo": "fino a 6.000 €/anno più 280 €/mese per l'affitto",
+      "descrizione": "Sostegno al reddito per nuclei con ISEE sotto 10.140 € in cui ci sia almeno un minore, una persona con disabilità, un over 60 o una persona in condizione di svantaggio presa in carico dai servizi sociali. Dal 2026 la franchigia sulla prima casa sale a 91.500 € (fino a 120.000 € nei capoluoghi di città metropolitana): molte famiglie prima escluse ora rientrano.",
+      "come": "Domanda sul portale INPS o tramite patronato, poi sottoscrizione del patto di attivazione digitale.",
+      "fonte": "D.L. 48/2023, modificato dalla Legge di Bilancio 2026",
+      "url": "https://www.inps.it/it/it/dettaglio-scheda.schede-servizio-strumento.schede-servizi.assegno-di-inclusione-adi-.html",
+      "condizioni": { "richiede_isee": true, "isee_max": 10140, "richiede_carico_familiare": true, "reddito_complessivo_max": 16000 },
+      "priorita": 1
+    },
+    {
+      "id": "assegno-unico",
+      "titolo": "Assegno unico universale per i figli",
+      "importo": "da 57 a 201 €/mese per figlio",
+      "descrizione": "Spetta a tutti i nuclei con figli a carico fino a 21 anni, senza soglia di reddito: cambia solo l'importo, che è massimo con ISEE fino a 17.227,33 € e decresce fino al minimo garantito. Chi non presenta l'ISEE prende comunque l'importo minimo — ma prende il minimo, e spesso avrebbe diritto al triplo.",
+      "come": "Domanda una tantum sul portale INPS, poi si rinnova da sola. Va aggiornato l'ISEE ogni anno entro febbraio.",
+      "fonte": "D.Lgs. 230/2021",
+      "url": "https://www.inps.it/it/it/dettaglio-scheda.schede-servizio-strumento.schede-servizi.assegno-unico-e-universale-per-i-figli-a-carico-55984.html",
+      "condizioni": { "richiede_figli": true },
+      "priorita": 2
+    },
+    {
+      "id": "naspi",
+      "titolo": "NASpI — indennità di disoccupazione",
+      "importo": "circa il 75% dell'ultima retribuzione, a scalare",
+      "descrizione": "Se perdi il lavoro senza tua volontà (licenziamento, mancato rinnovo, dimissioni per giusta causa) hai diritto alla NASpI per un numero di mesi pari alla metà delle settimane contributive degli ultimi quattro anni. La domanda va presentata entro 68 giorni: passato quel termine il diritto si perde, ed è l'errore più comune.",
+      "come": "Domanda sul portale INPS o tramite patronato entro 68 giorni dalla cessazione.",
+      "fonte": "D.Lgs. 22/2015",
+      "url": "https://www.inps.it/it/it/dettaglio-scheda.schede-servizio-strumento.schede-servizi.naspi-indennita-mensile-di-disoccupazione-50172.html",
+      "condizioni": { "tipo_contratto_in": ["indeterminato", "determinato", "parttime"] },
+      "priorita": 5
+    },
+    {
+      "id": "isee",
+      "titolo": "Fai l'ISEE — è la chiave di tutto il resto",
+      "importo": "gratis",
+      "descrizione": "Bonus bollette, Carta Dedicata a te, assegno unico pieno, assegno di inclusione, tariffe agevolate per asili, mense, trasporti e università: quasi tutto passa dall'ISEE. Presentare la DSU costa venti minuti e non costa un euro. Non presentarla significa lasciare sul tavolo, in media, diverse centinaia di euro l'anno.",
+      "come": "CAF, patronato o portale INPS con SPID/CIE. Vale fino al 31 dicembre dell'anno in cui è rilasciato.",
+      "fonte": "DPCM 159/2013",
+      "url": "https://www.inps.it/it/it/dettaglio-scheda.schede-servizio-strumento.schede-servizi.isee-post-riforma-2015-50088.html",
+      "condizioni": {},
+      "priorita": 1
+    },
+    {
+      "id": "vertenza-nero",
+      "titolo": "Il lavoro nero si può far emergere — e conviene",
+      "importo": "contributi, TFR, ferie e mensilità arretrate",
+      "descrizione": "Chi lavora senza contratto può chiedere il riconoscimento del rapporto e il versamento di tutto l'arretrato: contributi previdenziali, TFR, tredicesima, ferie non godute, differenze retributive. Il termine di prescrizione ordinario è di cinque anni, e la denuncia all'Ispettorato può restare riservata. Non serve avere prove documentali perfette: valgono testimonianze, messaggi, turni, bonifici.",
+      "come": "Ispettorato territoriale del lavoro, oppure — meglio, perché ti seguono anche dopo — l'ufficio vertenze della camera del lavoro locale.",
+      "fonte": "D.Lgs. 149/2015; art. 2094 e 2126 c.c.",
+      "url": "https://www.ispettorato.gov.it",
+      "condizioni": { "tipo_contratto_in": ["nero"] },
+      "priorita": 1
+    },
+    {
+      "id": "vertenza-inquadramento",
+      "titolo": "Controlla il tuo inquadramento",
+      "importo": "differenze retributive arretrate fino a 5 anni",
+      "descrizione": "Il livello scritto in busta paga deve corrispondere alle mansioni che svolgi davvero. Il sottoinquadramento è la forma più diffusa e meno contestata di taglio del salario: se svolgi stabilmente mansioni di un livello superiore hai diritto all'inquadramento superiore e agli arretrati. La verifica è gratuita in qualunque camera del lavoro.",
+      "come": "Porta tre buste paga e il mansionario all'ufficio vertenze del sindacato.",
+      "fonte": "Art. 2103 c.c.",
+      "url": "https://www.cgil.it",
+      "condizioni": { "tipo_contratto_not_in": ["nero", "dottorato"] },
+      "priorita": 4
+    }
+  ]
+}

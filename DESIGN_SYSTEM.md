@@ -314,7 +314,8 @@ Caratteristiche:
 
 ```javascript
 // Struttura base — vedere il mockup interattivo per l'implementazione completa
-// Il file va in: src/lib/components/Globe.svelte
+// NOTA 2.0: il globo è stato rimosso — era decorazione, non spiegava niente.
+// Lo snippet resta come riferimento estetico, non come componente del progetto.
 // Props: size (number), speed (number, default 0.006)
 ```
 
@@ -394,12 +395,10 @@ const SEGMENT_COLORS = {
 src/
 ├── app.css                    ← tutte le variabili CSS :root qui
 ├── lib/components/
-│   ├── Globe.svelte           ← globo Canvas (props: size, speed)
 │   ├── Ticker.svelte          ← barra rossa scorrevole (props: messages[])
 │   ├── SectionLabel.svelte    ← label uppercase rosso con linea
 │   ├── StatCard.svelte        ← numero hero + label (props: value, label, color)
 │   ├── LifeRing.svelte        ← grafico a torta D3 (props: breakdown)
-│   ├── WizardStep.svelte      ← singolo step del wizard
 │   └── CtaCard.svelte         ← card CTA locale
 ```
 
@@ -418,3 +417,56 @@ src/
 ✗ linguaggio neutro nel copy — ogni parola deve avere una posizione
 ✗ background bianco — il progetto è sempre dark
 ```
+
+---
+
+## Palette dati (2.0)
+
+I colori dei grafici sono un sottosistema a sé: non sono decorazione, portano identità.
+Ordine categoriale **fisso, mai ciclato** — il colore segue la destinazione, non la sua
+posizione in classifica, così un filtro non ricolora niente.
+
+| Slot | Significato | Tema scuro | Tema chiaro |
+|---|---|---|---|
+| `--tdv-dato-1` | profitto e rendita | `#d93b2b` | `#c92d1e` |
+| `--tdv-dato-2` | previdenza e TFR | `#4a90c2` | `#3a7fb5` |
+| `--tdv-dato-3` | imposte | `#b07d15` | `#a5730f` |
+| `--tdv-dato-4` | netto, tempo libero | `#22a97d` | `#12946b` |
+| `--tdv-neutro-1` | sonno | `#3f3e39` | `#c8c5be` |
+| `--tdv-neutro-2` | cura personale | `#6b6960` | `#9b998f` |
+
+I due temi hanno **steps propri**, non un ribaltamento automatico dello stesso valore.
+Entrambe le palette passano i cinque controlli sulla rispettiva superficie: banda di
+luminosità, soglia di croma, separazione per daltonismo (ΔE ≥ 8 sulle coppie adiacenti),
+soglia a visione normale (ΔE ≥ 15) e contrasto sul fondale.
+
+I due neutrali non portano identità e non devono fingere di portarla: sono sempre etichettati
+direttamente.
+
+### Regole dei grafici
+
+- **Legenda sempre presente** quando le serie sono più di una; etichetta diretta solo sui
+  segmenti abbastanza larghi da contenerla. L'identità non è mai affidata al solo colore
+- **2px di superficie** fra un segmento e l'altro: il confine si vede anche a chi non
+  distingue le due tinte
+- **4px di raggio** solo alle estremità della barra, mai sui segmenti interni
+- **I testi portano i token di inchiostro**, mai il colore della serie
+- **Tabella equivalente sempre nel DOM**, dentro un `<details>`: è ciò che leggono gli screen
+  reader e ciò che resta se il JavaScript non parte
+
+---
+
+## Motion
+
+Una sola curva (`--tdv-ease`) e tre durate (`--tdv-fast` 180ms, `--tdv-mid` 420ms,
+`--tdv-slow` 900ms), così i movimenti sembrano un sistema e non una collezione.
+
+Le animazioni fanno due cose e nessun'altra: mostrare una quantità che **cresce da zero**
+(le barre) e segnalare che un numero **è cambiato** (i totali, con un tween). Se un movimento
+non spiega qualcosa, non c'è.
+
+L'animazione delle barre è in **CSS**, non in JavaScript: le larghezze finali devono già
+essere nel markup del server, altrimenti senza JavaScript la barra resterebbe vuota.
+
+`prefers-reduced-motion: reduce` azzera tutto globalmente. Non è una cortesia: per alcune
+persone il movimento è un sintomo, non un effetto.

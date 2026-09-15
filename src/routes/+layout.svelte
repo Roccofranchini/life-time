@@ -2,8 +2,9 @@
   src/routes/+layout.svelte
   Shell globale: stylesheet, nav bar, ticker rosso.
   Niente analytics, niente cookie banner (nessun cookie).
-  Navigazione minima: Tempo di vita (home), Calcola (scroll al wizard),
-  Dati aperti (link interno al dump JSON), GitHub (out).
+  Navigazione minima: home, salto al calcolatore, GitHub. Il metodo e le fonti
+  stanno in fondo alla home, non in una pagina a parte: chi ha appena letto un
+  numero deve poterlo verificare lì, senza cambiare schermata.
 -->
 <script lang="ts">
   import '../app.css';
@@ -18,20 +19,18 @@
 
   const GITHUB_URL = 'https://github.com/roccofranchini/life-time';
 
-  function scrollAWizard(e: MouseEvent) {
+  function scrollAlCalcolatore(e: MouseEvent) {
     if ($page.url.pathname !== '/') return;
     e.preventDefault();
-    document.getElementById('wizard')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document.getElementById('calcola')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 </script>
 
 <svelte:head>
-  <title>Tempo di vita · quanto costa vivere, in ore</title>
-  <meta
-    name="description"
-    content="Converti il tuo salario in ore sottratte alla tua esistenza. Dati pubblici, calcoli aperti, nessun dato raccolto."
-  />
-  <meta name="color-scheme" content="dark" />
+  <!-- title e description li imposta la pagina: solo lei conosce il risultato.
+       Qui resta ciò che vale per tutto il sito. -->
+  <meta name="color-scheme" content="dark light" />
+  <meta name="robots" content="index, follow" />
 </svelte:head>
 
 <div class="tdv-page">
@@ -46,15 +45,7 @@
     >
       Tempo di vita
     </a>
-    <a href="/#wizard" class="tdv-nav-item" onclick={scrollAWizard}>Calcola</a>
-    <a
-      href="/dati-aperti"
-      class="tdv-nav-item"
-      class:active={$page.url.pathname === '/dati-aperti'}
-      aria-current={$page.url.pathname === '/dati-aperti' ? 'page' : undefined}
-    >
-      Dati aperti
-    </a>
+    <a href="/#calcola" class="tdv-nav-item" onclick={scrollAlCalcolatore}>Calcola</a>
     <a href={GITHUB_URL} class="tdv-nav-item" target="_blank" rel="noopener noreferrer">
       GitHub ↗
     </a>

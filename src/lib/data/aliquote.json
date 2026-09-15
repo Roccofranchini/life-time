@@ -1,63 +1,147 @@
 {
   "anno": 2026,
-  "fonte": "https://www.agenziaentrate.gov.it/portale/imposta-sul-reddito-delle-persone-fisiche-irpef-/aliquote-e-calcolo-dell-irpef",
-  "nota_irpef": "Aliquote aggiornate alla Legge di Bilancio 2026 (L. 199/2025): secondo scaglione ridotto dal 35% al 33%. Primo e terzo scaglione invariati rispetto al 2024 (D.Lgs. 216/2023).",
+  "aggiornato": "2026-09-10",
+  "nota": "Ogni parametro porta la propria fonte. Il motore fiscale non contiene numeri: legge tutto da qui. Se una cifra qui è sbagliata, si corregge con una PR su questo file — non serve toccare il codice.",
+
   "irpef": {
+    "fonte": "Legge di Bilancio 2026 (L. 199/2025), art. 1 — secondo scaglione ridotto dal 35% al 33%. Struttura a tre scaglioni da D.Lgs. 216/2023, resa strutturale dalla L. 207/2024.",
+    "url": "https://www.agenziaentrate.gov.it/portale/imposta-sul-reddito-delle-persone-fisiche-irpef-/aliquote-e-calcolo-dell-irpef",
     "scaglioni": [
       { "da": 0, "a": 28000, "aliquota": 0.23 },
-      { "da": 28001, "a": 50000, "aliquota": 0.33 },
-      { "da": 50001, "a": null, "aliquota": 0.43 }
+      { "da": 28000, "a": 50000, "aliquota": 0.33 },
+      { "da": 50000, "a": null, "aliquota": 0.43 }
     ]
   },
+
+  "detrazione_lavoro_dipendente": {
+    "fonte": "TUIR art. 13 c. 1. Importi confermati per il 2026: no tax area 8.500 €, detrazione base 1.955 €.",
+    "url": "https://www.agenziaentrate.gov.it/portale/imposta-sul-reddito-delle-persone-fisiche-irpef-/aliquote-e-calcolo-dell-irpef",
+    "fascia_1": { "fino_a": 15000, "importo": 1955 },
+    "fascia_2": { "fino_a": 28000, "base": 1910, "variabile": 1190, "riferimento": 28000, "ampiezza": 13000 },
+    "fascia_3": { "fino_a": 50000, "base": 1910, "riferimento": 50000, "ampiezza": 22000 },
+    "nota_discontinuita": "La lettera b) è discontinua per costruzione: a 15.000 € la detrazione vale 1.955 €, un euro sopra vale 3.100 €. Il salto è compensato dalla perdita del trattamento integrativo da 1.200 €, che sotto i 15.000 € spetta pieno."
+  },
+
+  "somma_integrativa": {
+    "fonte": "L. 207/2024 art. 1 c. 4-5 (taglio strutturale del cuneo fiscale), in vigore anche nel 2026. Somma che non concorre alla formazione del reddito, calcolata sul reddito di lavoro dipendente.",
+    "url": "https://www.inps.it",
+    "soglia_reddito_complessivo": 20000,
+    "scaglioni": [
+      { "reddito_lavoro_fino_a": 8500, "percentuale": 0.071 },
+      { "reddito_lavoro_fino_a": 15000, "percentuale": 0.053 },
+      { "reddito_lavoro_fino_a": null, "percentuale": 0.048 }
+    ]
+  },
+
+  "ulteriore_detrazione": {
+    "fonte": "L. 207/2024 art. 1 c. 6. Detrazione aggiuntiva per redditi 20.000-40.000 €, costante fino a 32.000 € e poi decrescente linearmente fino ad azzerarsi.",
+    "da": 20000,
+    "importo_pieno": 1000,
+    "fino_a_pieno": 32000,
+    "azzeramento": 40000
+  },
+
+  "trattamento_integrativo": {
+    "fonte": "D.L. 3/2020 art. 1 (ex 'bonus Renzi'), confermato nel 2026 e cumulabile con il taglio del cuneo. Spetta se l'imposta lorda supera la detrazione da lavoro dipendente.",
+    "importo": 1200,
+    "soglia_piena": 15000,
+    "soglia_massima": 28000
+  },
+
   "inps": {
+    "fonte": "INPS circolare n. 6/2026 (minimali e massimali) e aliquota IVS FPLD 33% ripartita 9,19% lavoratore / 23,81% datore.",
+    "url": "https://www.inps.it/it/it/inps-comunica/notizie/dettaglio-news-page.news.2026.02.lavoratori-dipendenti-limite-minimo-di-retribuzione-giornaliera-2026.html",
     "dipendente": {
       "aliquota": 0.0919,
-      "aliquota_massimale": 0.1019,
-      "massimale_annuo": 113520
+      "aliquota_aggiuntiva": 0.01,
+      "prima_fascia_pensionabile": 56224,
+      "massimale_annuo": 122295,
+      "nota": "Il +1% (art. 3-ter D.L. 384/1992) si applica sulla quota eccedente la prima fascia di retribuzione pensionabile (56.224 € nel 2026), NON sul massimale. Sopra il massimale (122.295 €) non si versa IVS."
     },
-    "partiva_gestione_separata": {
-      "aliquota": 0.2623
+    "datore": {
+      "ivs": 0.2381,
+      "altri_contributi": 0.068,
+      "nota": "'Altri contributi' aggrega NASpI (1,61%), fondi interprofessionali (0,30%), CIG (0,90-2,20% secondo dimensione e settore), malattia (~2,22%), maternità (0,24%), fondo garanzia TFR (0,20%) e INAIL (0,5-3% secondo il rischio della lavorazione). 6,8% è una media del settore privato: è il parametro più incerto del modello e contribuisce alla banda di errore dichiarata.",
+      "incertezza": 0.02
+    },
+    "gestione_separata": {
+      "aliquota": 0.2623,
+      "nota": "Collaboratori e P.IVA senza altra copertura previdenziale. Per la committenza 2/3 sono formalmente a carico del committente, ma nel lavoro autonomo dipendente-mascherato il costo grava di fatto sul prestatore: il modello lo attribuisce interamente a chi lavora.",
+      "url": "https://www.inps.it"
+    },
+    "pubblico_impiego": {
+      "dipendente": 0.0895,
+      "datore": 0.2380,
+      "nota": "Gestione CTPS (ex INPDAP): 8,80% IVS + 0,15% fondo credito a carico del dipendente, 23,80% a carico dell'amministrazione."
     }
   },
-  "addizionali_regionali": {
-    "abruzzo": 0.0173,
-    "basilicata": 0.0123,
-    "calabria": 0.0203,
-    "campania": 0.0203,
-    "emilia-romagna": 0.0133,
-    "friuli-venezia-giulia": 0.0123,
-    "lazio": 0.0333,
-    "liguria": 0.0173,
-    "lombardia": 0.0173,
-    "marche": 0.0173,
-    "molise": 0.0233,
-    "piemonte": 0.0262,
-    "puglia": 0.0203,
-    "sardegna": 0.0123,
-    "sicilia": 0.0143,
-    "toscana": 0.0173,
-    "trentino-alto-adige": 0.0123,
-    "umbria": 0.0173,
-    "valle-d-aosta": 0.0123,
-    "veneto": 0.0123
+
+  "tfr": {
+    "fonte": "Art. 2120 c.c. — accantonamento annuo pari alla retribuzione divisa per 13,5 (7,41%), al netto del contributo dello 0,50% al Fondo di garanzia.",
+    "quota": 0.0691,
+    "nota": "Il TFR è salario differito, non un'imposta: nel modello sta nella fetta 'previdenza e salario differito', mai in quella fiscale."
   },
-  "addizionali_comunali_media": 0.008,
-  "margine_medio_settore_fonte": "ISTAT, Conti economici delle imprese e dei gruppi di imprese — anno 2023 (pubblicazione ottobre 2025). Indicatore: MOL/Valore aggiunto a prezzi base, per divisione ATECO. Interpretazione: quota del valore aggiunto non assegnata al lavoro dipendente — proxy settoriale del profit share e, in cornice marxiana, del saggio di sfruttamento. Settori pubblici (PA, scuola): 0.00 — non c'è estrazione di profitto privato, scelta editoriale conservativa. Dottorato: 0.35 — stima editoriale del valore di ricerca estratto con borsa minima. Nero: 0.40 — il datore a nero risparmia anche i contributi datoriali (~23%), aumentando il surplus estratto.",
-  "margine_medio_settore_url": "https://www.istat.it/wp-content/uploads/2025/10/Report-Conti-economici-imprese-e-gruppi_2023.pdf",
-  "margine_medio_settore": {
-    "commercio": 0.30,
-    "metalmeccanici": 0.38,
-    "logistica": 0.35,
-    "ristorazione": 0.22,
-    "terziario": 0.30,
-    "edilizia": 0.30,
-    "pulizie": 0.20,
-    "sanita-privata": 0.35,
-    "pubblica-amministrazione": 0.00,
-    "funzioni-locali": 0.00,
-    "scuola": 0.00,
-    "dottorato": 0.35,
-    "nero": 0.40,
-    "default": 0.32
+
+  "addizionali": {
+    "fonte": "Aliquote base regionali IRPEF vigenti. L'addizionale comunale varia per comune (0-0,9%): il modello usa una media nazionale e la dichiara come tale.",
+    "url": "https://www.finanze.gov.it/it/fiscalita-regionale-e-locale/addizionale-regionale-allirpef/",
+    "comunale_media": 0.008,
+    "regionali": {
+      "abruzzo": 0.0173,
+      "basilicata": 0.0123,
+      "calabria": 0.0203,
+      "campania": 0.0203,
+      "emilia-romagna": 0.0133,
+      "friuli-venezia-giulia": 0.0123,
+      "lazio": 0.0333,
+      "liguria": 0.0173,
+      "lombardia": 0.0173,
+      "marche": 0.0173,
+      "molise": 0.0233,
+      "piemonte": 0.0262,
+      "puglia": 0.0203,
+      "sardegna": 0.0123,
+      "sicilia": 0.0143,
+      "toscana": 0.0173,
+      "trentino-alto-adige": 0.0123,
+      "umbria": 0.0173,
+      "valle-d-aosta": 0.0123,
+      "veneto": 0.0123
+    }
+  },
+
+  "quota_lavoro_settore": {
+    "cosa_misura": "Quota del valore aggiunto che va al lavoro dipendente (costo del lavoro / valore aggiunto). Il complemento a 1 è il margine operativo lordo: ciò che resta all'impresa prima di ammortamenti, interessi e imposte.",
+    "fonte": "ISTAT, Conti economici delle imprese; quota aggregata del lavoro sul valore aggiunto 44% (stima ISTAT 2024) e 51% nel campione di imprese private Mediobanca. I valori per settore sono ricostruiti su queste basi e ordinati per intensità di lavoro.",
+    "url": "https://www.istat.it/wp-content/uploads/2025/03/REDISTRIBUZIONE-REDDITO-IN-ITALIA-2024.pdf",
+    "limiti": [
+      "Il MOL non è profitto netto: contiene gli ammortamenti del capitale fisso.",
+      "Nel tessuto italiano di microimprese contiene anche reddito misto, cioè lavoro non retribuito di titolari e familiari.",
+      "È una media di settore: non descrive la singola impresa né il singolo rapporto di lavoro."
+    ],
+    "incertezza": 0.08,
+    "valori": {
+      "commercio": 0.70,
+      "metalmeccanici": 0.62,
+      "logistica": 0.66,
+      "ristorazione": 0.78,
+      "terziario": 0.70,
+      "edilizia": 0.70,
+      "pulizie": 0.82,
+      "sanita-privata": 0.66,
+      "pubblica-amministrazione": 1.0,
+      "funzioni-locali": 1.0,
+      "scuola": 1.0,
+      "dottorato": 0.65,
+      "nero": 0.60,
+      "default": 0.68
+    },
+    "nota_settori_pubblici": "Per PA, enti locali e scuola la quota è posta a 1: nel settore pubblico non c'è estrazione di profitto privato. È una scelta editoriale conservativa, non una misura.",
+    "nota_nero": "Nel lavoro non dichiarato il datore risparmia l'intera contribuzione (~30%) oltre al margine ordinario: la quota del lavoro è quindi più bassa di quella del settore corrispondente."
+  },
+
+  "margine_errore": {
+    "valore": 0.03,
+    "cosa_copre": "Il ±3% copre la dispersione di addizionali comunali, contributi datoriali effettivi, premi INAIL, superminimi e scatti di anzianità. NON copre l'incertezza sulla quota del lavoro di settore, che è dichiarata a parte e mostrata come banda."
   }
 }
