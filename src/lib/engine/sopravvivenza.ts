@@ -11,9 +11,11 @@
 // quale lo Stato italiano dichiara che una persona è povera — e la parte non
 // abitativa (62%) copre cibo, trasporti, salute, igiene, vestiario, comunicazioni.
 //
-// Il canone non è più un numero scritto a mano: è €/m² della provincia per la
-// superficie del tipo di alloggio, diviso le persone che se lo dividono. Due
-// grandezze pubblicate e un'operazione: chiunque può rifare il conto.
+// Il canone è il prodotto di tre cose, tutte ispezionabili: il €/m² medio del
+// mercato locale (rilevato da idealista dove disponibile, calibrato altrove — il
+// campo fonte_dato lo dice per ogni provincia), il coefficiente di periferia
+// (una convenzione dichiarata, 0,80) e la superficie del tipo di alloggio,
+// diviso le persone che se lo dividono.
 //
 // Le ore si calcolano al salario orario REALE, non a quello nominale.
 
@@ -31,9 +33,14 @@ export function sogliaIstat(provincia: ProvinciaEntry): number {
   return perArea?.[provincia.tipo_comune] ?? SOGLIE.valori.centro.grande;
 }
 
+/** €/m² di periferia: media di mercato scontata del coefficiente dichiarato. */
+export function eurMqPeriferia(provincia: ProvinciaEntry): number {
+  return provincia.eur_mq_medio * T.alloggi.coefficiente_periferia;
+}
+
 export function canoneMensile(provincia: ProvinciaEntry, alloggio: AlloggioId): number {
   const a = tipoAlloggio(alloggio);
-  return (provincia.eur_mq * a.mq) / a.quota_persone;
+  return (eurMqPeriferia(provincia) * a.mq) / a.quota_persone;
 }
 
 export function calcolaSopravvivenza(input: {

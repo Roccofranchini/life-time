@@ -10,7 +10,7 @@ import type { Ingresso, ProvinciaEntry, Risultato } from '../types';
 export { calcolaFisco, MARGINE_ERRORE, irpefLorda, detrazioneLavoro, ulterioreDetrazione, sommaIntegrativa, trattamentoIntegrativo, contributiLavoratore, contributiDatore, isSettorePubblico } from './fiscal';
 export { decomponiValore, quotaLavoro, INCERTEZZA_QUOTA } from './valore';
 export { calcolaTempo, prezzoInOre, oreRetribuiteMese, oreLavoroFamiliare, costiDelLavoroMese, ORE_MESE, GIORNI_MESE, GIORNI_LAVORATIVI_MESE } from './tempo';
-export { calcolaSopravvivenza, canoneMensile, sogliaIstat, tipoAlloggio } from './sopravvivenza';
+export { calcolaSopravvivenza, canoneMensile, eurMqPeriferia, sogliaIstat, tipoAlloggio } from './sopravvivenza';
 export { valutaAiuti, AVVERTENZA_AIUTI } from './aiuti';
 
 /**

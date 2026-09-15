@@ -78,9 +78,15 @@
     {
       t: 'Dal canone al metro quadro',
       v: `${eur(r.sopravvivenza.affitto)} € al mese`,
-      d: `${provincia.eur_mq} €/m² per ${provincia.nome} × ${r.sopravvivenza.affitto_mq} m²${
+      d: `${provincia.eur_mq_medio} €/m² di media di mercato per ${provincia.nome} (${
+        provincia.fonte_dato === 'calibrato'
+          ? 'non rilevato: stima riscalata sulle province rilevate della stessa ripartizione'
+          : provincia.rilevazione
+      }), scontato al ${Math.round(tempo.alloggi.coefficiente_periferia * 100)}% per la periferia, × ${
+        r.sopravvivenza.affitto_mq
+      } m²${
         r.sopravvivenza.affitto_persone > 1 ? `, diviso ${r.sopravvivenza.affitto_persone} persone` : ''
-      }. Nessun canone è scritto a mano: è sempre il prodotto di due grandezze pubblicate.`
+      }.`
     },
     {
       t: 'Dal paniere ISTAT ai costi fissi',
@@ -100,7 +106,7 @@
     { n: 'ISTAT — uso del tempo', u: tempo.lavoro_familiare.url, d: tempo.lavoro_familiare.fonte },
     { n: 'ISTAT — pendolarismo', u: tempo.pendolarismo.url, d: tempo.pendolarismo.fonte },
     { n: 'ISTAT — quota del lavoro sul valore aggiunto', u: aliquote.quota_lavoro_settore.url, d: aliquote.quota_lavoro_settore.fonte },
-    { n: 'Canoni di locazione', u: province.url_canoni, d: province.fonte },
+    { n: 'idealista — indice dei canoni di locazione', u: province.url_canoni, d: province.fonte_canoni },
     { n: 'OMI — quotazioni immobiliari', u: province.url_omi, d: 'Banca dati delle quotazioni immobiliari dell’Agenzia delle Entrate.' }
   ];
 </script>
@@ -145,6 +151,12 @@
             di settore. Non descrive la tua impresa, e da una media non si deduce il caso singolo.
             Il margine operativo lordo contiene anche ammortamenti e, nelle microimprese, il lavoro
             non retribuito di titolari e familiari: non è tutto reddito da capitale.
+          </li>
+          <li>
+            <strong>Quanto costa affittare dove vivi tu.</strong> Solo 19 province su 107 hanno una
+            rilevazione pubblica del canone che siamo riusciti a verificare. Per le altre il valore è
+            riscalato su quelle, e il campo «rilevato / stimato» accanto al canone dice sempre in
+            quale dei due casi ti trovi.
           </li>
           <li>
             <strong>Quanto spendi davvero.</strong> Il paniere è quello minimo ISTAT, non il tuo.

@@ -240,7 +240,14 @@ export interface ProvinciaEntry {
   regione: string;
   area: AreaGeografica;
   tipo_comune: TipoComune;
-  eur_mq: number;
+  /** canone medio al metro quadro dell'intero mercato locale, centro compreso.
+   *  Per il canone di periferia va moltiplicato per il coefficiente in tempo.json. */
+  eur_mq_medio: number;
+  /** come è stato ottenuto: rilevato sul capoluogo, rilevato sulla provincia, o calibrato */
+  fonte_dato: 'rilevato_capoluogo' | 'rilevato_provincia' | 'calibrato';
+  rilevazione: string;
+  /** presente dove la media provinciale è gonfiata dal turismo e non descrive il capoluogo */
+  avvertenza_turistica?: string;
 }
 
 export interface CcnlLivello {

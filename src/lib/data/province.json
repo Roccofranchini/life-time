@@ -1,11 +1,29 @@
 {
-  "fonte": "Classificazione territoriale: ISTAT (ripartizioni geografiche) e L. 56/2014 (città metropolitane). Canoni: €/m² stimati per la periferia del capoluogo, ricostruiti da rilevazioni OMI e idealista/Immobiliare.it e aggiornati all'indice dei canoni Q2 2026.",
-  "url_canoni": "https://www.idealista.it/news/immobiliare/residenziale/2026/04/01/347652-riparte-la-corsa-degli-affitti-4-nel-primo-trimestre-2026-scopri-i-canoni-nella",
+  "aggiornato": "2026-09-15",
+  "fonte_territorio": "ISTAT (ripartizioni geografiche) e L. 56/2014 (città metropolitane).",
+  "fonte_canoni": "idealista, indice dei prezzi di locazione 2026. Media nazionale II trimestre 2026: 15,4 €/m², massimo dal 2012.",
+  "url_canoni": "https://www.idealista.it/news/immobiliare/residenziale/2026/07/01/401170-affitti-mai-cosi-cari-dal-2012-nel-ii-trimestre-2026-media-nazionale-a-15-4-euro",
   "url_omi": "https://www.agenziaentrate.gov.it/portale/schede/fabbricatiterreni/omi",
-  "aggiornato": "2026-09-10",
-  "metodo_canone": "canone mensile = eur_mq × superficie convenzionale del tipo di alloggio. Le superfici sono in tempo.json → alloggi. Nessun canone è scritto a mano: è sempre il prodotto di due grandezze pubblicate, quindi rifacibile e contestabile.",
-  "indice_aggiornamento": 1.09,
-  "superficie_riferimento_mq": 55,
+  "significato_eur_mq_medio": "Canone medio al metro quadro dell’intero mercato locale, centro compreso. NON è il canone di periferia: quello si ottiene moltiplicando per il coefficiente di periferia dichiarato in tempo.json → alloggi.",
+  "fonte_dato_legenda": {
+    "rilevato_capoluogo": "rilevazione idealista riferita al capoluogo",
+    "rilevato_provincia": "rilevazione idealista provinciale, usata come proxy del capoluogo dove non ci sono distorsioni turistiche rilevanti",
+    "calibrato": "non rilevato: stima della v1 riscalata sul fattore di correzione misurato negli ancoraggi della stessa ripartizione"
+  },
+  "calibrazione": {
+    "metodo": "Per ogni provincia con una rilevazione si è calcolato il rapporto fra valore rilevato e stima v1. La mediana di quei rapporti, per ripartizione, corregge le province non rilevate. Le stime v1 risultavano gonfiate: −3% al Nord, −9% al Centro, −16% al Mezzogiorno.",
+    "fattori": {
+      "nord": 0.94,
+      "centro": 0.907,
+      "mezzogiorno": 0.836
+    },
+    "ancoraggi": {
+      "nord": 7,
+      "centro": 4,
+      "mezzogiorno": 8
+    },
+    "limite": "88 province su 107 restano non rilevate. Il loro ordine relativo viene dalla v1 e non è verificato: sono un ordine di grandezza. La correzione vera è estrarre le quotazioni OMI per zona periferica dalla Banca Dati Quotazioni Immobiliari e sostituirle una per una."
+  },
   "province": [
     {
       "codice": "AG",
@@ -13,7 +31,9 @@
       "regione": "sicilia",
       "area": "mezzogiorno",
       "tipo_comune": "grande",
-      "eur_mq": 5.9
+      "eur_mq_medio": 6.2,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.836 del mezzogiorno"
     },
     {
       "codice": "AL",
@@ -21,7 +41,9 @@
       "regione": "piemonte",
       "area": "nord",
       "tipo_comune": "grande",
-      "eur_mq": 8.3
+      "eur_mq_medio": 9.8,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.94 del nord"
     },
     {
       "codice": "AN",
@@ -29,7 +51,9 @@
       "regione": "marche",
       "area": "centro",
       "tipo_comune": "grande",
-      "eur_mq": 9.9
+      "eur_mq_medio": 10.4,
+      "fonte_dato": "rilevato_capoluogo",
+      "rilevazione": "idealista, II trim. 2026"
     },
     {
       "codice": "AO",
@@ -37,7 +61,10 @@
       "regione": "valle-d-aosta",
       "area": "nord",
       "tipo_comune": "piccolo",
-      "eur_mq": 10.3
+      "eur_mq_medio": 12.1,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.94 del nord",
+      "avvertenza_turistica": "La media dell'intera provincia è 24.1 €/m², tra le più alte d'Italia, ma è trainata da Courmayeur e Cervinia: non descrive il capoluogo. Qui usiamo il valore calibrato."
     },
     {
       "codice": "AR",
@@ -45,7 +72,9 @@
       "regione": "toscana",
       "area": "centro",
       "tipo_comune": "grande",
-      "eur_mq": 9.3
+      "eur_mq_medio": 10.5,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.907 del centro"
     },
     {
       "codice": "AP",
@@ -53,7 +82,9 @@
       "regione": "marche",
       "area": "centro",
       "tipo_comune": "piccolo",
-      "eur_mq": 7.5
+      "eur_mq_medio": 8.5,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.907 del centro"
     },
     {
       "codice": "AT",
@@ -61,7 +92,9 @@
       "regione": "piemonte",
       "area": "nord",
       "tipo_comune": "grande",
-      "eur_mq": 7.9
+      "eur_mq_medio": 9.3,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.94 del nord"
     },
     {
       "codice": "AV",
@@ -69,7 +102,9 @@
       "regione": "campania",
       "area": "mezzogiorno",
       "tipo_comune": "grande",
-      "eur_mq": 7.5
+      "eur_mq_medio": 6.3,
+      "fonte_dato": "rilevato_provincia",
+      "rilevazione": "idealista, I trim. 2026"
     },
     {
       "codice": "BA",
@@ -77,7 +112,9 @@
       "regione": "puglia",
       "area": "mezzogiorno",
       "tipo_comune": "metropoli",
-      "eur_mq": 8.9
+      "eur_mq_medio": 9.3,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.836 del mezzogiorno"
     },
     {
       "codice": "BT",
@@ -85,7 +122,9 @@
       "regione": "puglia",
       "area": "mezzogiorno",
       "tipo_comune": "grande",
-      "eur_mq": 7.5
+      "eur_mq_medio": 7.8,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.836 del mezzogiorno"
     },
     {
       "codice": "BL",
@@ -93,7 +132,10 @@
       "regione": "veneto",
       "area": "nord",
       "tipo_comune": "piccolo",
-      "eur_mq": 8.5
+      "eur_mq_medio": 10,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.94 del nord",
+      "avvertenza_turistica": "La media dell'intera provincia è 31.4 €/m², tra le più alte d'Italia, ma è trainata da Cortina d’Ampezzo: non descrive il capoluogo. Qui usiamo il valore calibrato."
     },
     {
       "codice": "BN",
@@ -101,7 +143,9 @@
       "regione": "campania",
       "area": "mezzogiorno",
       "tipo_comune": "grande",
-      "eur_mq": 6.5
+      "eur_mq_medio": 6.8,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.836 del mezzogiorno"
     },
     {
       "codice": "BG",
@@ -109,7 +153,9 @@
       "regione": "lombardia",
       "area": "nord",
       "tipo_comune": "grande",
-      "eur_mq": 12.9
+      "eur_mq_medio": 15.2,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.94 del nord"
     },
     {
       "codice": "BI",
@@ -117,7 +163,9 @@
       "regione": "piemonte",
       "area": "nord",
       "tipo_comune": "piccolo",
-      "eur_mq": 7.5
+      "eur_mq_medio": 8.8,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.94 del nord"
     },
     {
       "codice": "BO",
@@ -125,7 +173,9 @@
       "regione": "emilia-romagna",
       "area": "nord",
       "tipo_comune": "metropoli",
-      "eur_mq": 14.9
+      "eur_mq_medio": 17.5,
+      "fonte_dato": "rilevato_capoluogo",
+      "rilevazione": "idealista, II trim. 2026"
     },
     {
       "codice": "BZ",
@@ -133,7 +183,9 @@
       "regione": "trentino-alto-adige",
       "area": "nord",
       "tipo_comune": "grande",
-      "eur_mq": 17.4
+      "eur_mq_medio": 20.4,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.94 del nord"
     },
     {
       "codice": "BS",
@@ -141,7 +193,9 @@
       "regione": "lombardia",
       "area": "nord",
       "tipo_comune": "grande",
-      "eur_mq": 11.9
+      "eur_mq_medio": 14,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.94 del nord"
     },
     {
       "codice": "BR",
@@ -149,7 +203,9 @@
       "regione": "puglia",
       "area": "mezzogiorno",
       "tipo_comune": "grande",
-      "eur_mq": 6.7
+      "eur_mq_medio": 7,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.836 del mezzogiorno"
     },
     {
       "codice": "CA",
@@ -157,7 +213,9 @@
       "regione": "sardegna",
       "area": "mezzogiorno",
       "tipo_comune": "metropoli",
-      "eur_mq": 9.5
+      "eur_mq_medio": 9.9,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.836 del mezzogiorno"
     },
     {
       "codice": "CL",
@@ -165,7 +223,9 @@
       "regione": "sicilia",
       "area": "mezzogiorno",
       "tipo_comune": "grande",
-      "eur_mq": 5.5
+      "eur_mq_medio": 5.6,
+      "fonte_dato": "rilevato_provincia",
+      "rilevazione": "idealista, I trim. 2026"
     },
     {
       "codice": "CB",
@@ -173,7 +233,9 @@
       "regione": "molise",
       "area": "mezzogiorno",
       "tipo_comune": "piccolo",
-      "eur_mq": 6.5
+      "eur_mq_medio": 6.8,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.836 del mezzogiorno"
     },
     {
       "codice": "CE",
@@ -181,7 +243,9 @@
       "regione": "campania",
       "area": "mezzogiorno",
       "tipo_comune": "grande",
-      "eur_mq": 8.9
+      "eur_mq_medio": 9.3,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.836 del mezzogiorno"
     },
     {
       "codice": "CT",
@@ -189,7 +253,9 @@
       "regione": "sicilia",
       "area": "mezzogiorno",
       "tipo_comune": "metropoli",
-      "eur_mq": 8.3
+      "eur_mq_medio": 8.9,
+      "fonte_dato": "rilevato_provincia",
+      "rilevazione": "idealista, I trim. 2026"
     },
     {
       "codice": "CZ",
@@ -197,7 +263,9 @@
       "regione": "calabria",
       "area": "mezzogiorno",
       "tipo_comune": "grande",
-      "eur_mq": 6.3
+      "eur_mq_medio": 6.6,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.836 del mezzogiorno"
     },
     {
       "codice": "CH",
@@ -205,7 +273,9 @@
       "regione": "abruzzo",
       "area": "mezzogiorno",
       "tipo_comune": "grande",
-      "eur_mq": 7.1
+      "eur_mq_medio": 7.4,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.836 del mezzogiorno"
     },
     {
       "codice": "CO",
@@ -213,7 +283,9 @@
       "regione": "lombardia",
       "area": "nord",
       "tipo_comune": "grande",
-      "eur_mq": 13.9
+      "eur_mq_medio": 16.3,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.94 del nord"
     },
     {
       "codice": "CS",
@@ -221,7 +293,9 @@
       "regione": "calabria",
       "area": "mezzogiorno",
       "tipo_comune": "grande",
-      "eur_mq": 6.5
+      "eur_mq_medio": 6.8,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.836 del mezzogiorno"
     },
     {
       "codice": "CR",
@@ -229,7 +303,9 @@
       "regione": "lombardia",
       "area": "nord",
       "tipo_comune": "grande",
-      "eur_mq": 9.5
+      "eur_mq_medio": 11.2,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.94 del nord"
     },
     {
       "codice": "KR",
@@ -237,7 +313,9 @@
       "regione": "calabria",
       "area": "mezzogiorno",
       "tipo_comune": "grande",
-      "eur_mq": 5.5
+      "eur_mq_medio": 5.7,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.836 del mezzogiorno"
     },
     {
       "codice": "CN",
@@ -245,7 +323,9 @@
       "regione": "piemonte",
       "area": "nord",
       "tipo_comune": "grande",
-      "eur_mq": 8.3
+      "eur_mq_medio": 9.8,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.94 del nord"
     },
     {
       "codice": "EN",
@@ -253,7 +333,9 @@
       "regione": "sicilia",
       "area": "mezzogiorno",
       "tipo_comune": "piccolo",
-      "eur_mq": 5.2
+      "eur_mq_medio": 7,
+      "fonte_dato": "rilevato_provincia",
+      "rilevazione": "idealista, I trim. 2026"
     },
     {
       "codice": "FM",
@@ -261,7 +343,9 @@
       "regione": "marche",
       "area": "centro",
       "tipo_comune": "piccolo",
-      "eur_mq": 7.7
+      "eur_mq_medio": 8.7,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.907 del centro"
     },
     {
       "codice": "FE",
@@ -269,7 +353,9 @@
       "regione": "emilia-romagna",
       "area": "nord",
       "tipo_comune": "grande",
-      "eur_mq": 8.9
+      "eur_mq_medio": 10.5,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.94 del nord"
     },
     {
       "codice": "FI",
@@ -277,7 +363,9 @@
       "regione": "toscana",
       "area": "centro",
       "tipo_comune": "metropoli",
-      "eur_mq": 16.3
+      "eur_mq_medio": 22.3,
+      "fonte_dato": "rilevato_capoluogo",
+      "rilevazione": "idealista, II trim. 2026"
     },
     {
       "codice": "FG",
@@ -285,7 +373,9 @@
       "regione": "puglia",
       "area": "mezzogiorno",
       "tipo_comune": "grande",
-      "eur_mq": 6.3
+      "eur_mq_medio": 6.6,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.836 del mezzogiorno"
     },
     {
       "codice": "FC",
@@ -293,7 +383,9 @@
       "regione": "emilia-romagna",
       "area": "nord",
       "tipo_comune": "grande",
-      "eur_mq": 9.5
+      "eur_mq_medio": 11.2,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.94 del nord"
     },
     {
       "codice": "FR",
@@ -301,7 +393,9 @@
       "regione": "lazio",
       "area": "centro",
       "tipo_comune": "grande",
-      "eur_mq": 7.9
+      "eur_mq_medio": 9,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.907 del centro"
     },
     {
       "codice": "GE",
@@ -309,7 +403,9 @@
       "regione": "liguria",
       "area": "nord",
       "tipo_comune": "metropoli",
-      "eur_mq": 10.7
+      "eur_mq_medio": 12.6,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.94 del nord"
     },
     {
       "codice": "GO",
@@ -317,7 +413,9 @@
       "regione": "friuli-venezia-giulia",
       "area": "nord",
       "tipo_comune": "piccolo",
-      "eur_mq": 7.9
+      "eur_mq_medio": 9.3,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.94 del nord"
     },
     {
       "codice": "GR",
@@ -325,7 +423,10 @@
       "regione": "toscana",
       "area": "centro",
       "tipo_comune": "grande",
-      "eur_mq": 8.9
+      "eur_mq_medio": 10.1,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.907 del centro",
+      "avvertenza_turistica": "La media dell'intera provincia è 21 €/m², tra le più alte d'Italia, ma è trainata da Argentario e Maremma: non descrive il capoluogo. Qui usiamo il valore calibrato."
     },
     {
       "codice": "IM",
@@ -333,7 +434,9 @@
       "regione": "liguria",
       "area": "nord",
       "tipo_comune": "grande",
-      "eur_mq": 9.5
+      "eur_mq_medio": 11.2,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.94 del nord"
     },
     {
       "codice": "IS",
@@ -341,7 +444,9 @@
       "regione": "molise",
       "area": "mezzogiorno",
       "tipo_comune": "piccolo",
-      "eur_mq": 5.9
+      "eur_mq_medio": 6.2,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.836 del mezzogiorno"
     },
     {
       "codice": "AQ",
@@ -349,7 +454,9 @@
       "regione": "abruzzo",
       "area": "mezzogiorno",
       "tipo_comune": "grande",
-      "eur_mq": 7.5
+      "eur_mq_medio": 7.8,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.836 del mezzogiorno"
     },
     {
       "codice": "SP",
@@ -357,7 +464,9 @@
       "regione": "liguria",
       "area": "nord",
       "tipo_comune": "grande",
-      "eur_mq": 9.7
+      "eur_mq_medio": 11.4,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.94 del nord"
     },
     {
       "codice": "LT",
@@ -365,7 +474,9 @@
       "regione": "lazio",
       "area": "centro",
       "tipo_comune": "grande",
-      "eur_mq": 9.5
+      "eur_mq_medio": 10.8,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.907 del centro"
     },
     {
       "codice": "LE",
@@ -373,7 +484,9 @@
       "regione": "puglia",
       "area": "mezzogiorno",
       "tipo_comune": "grande",
-      "eur_mq": 7.9
+      "eur_mq_medio": 8.3,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.836 del mezzogiorno"
     },
     {
       "codice": "LC",
@@ -381,7 +494,9 @@
       "regione": "lombardia",
       "area": "nord",
       "tipo_comune": "piccolo",
-      "eur_mq": 13.5
+      "eur_mq_medio": 15.9,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.94 del nord"
     },
     {
       "codice": "LI",
@@ -389,7 +504,9 @@
       "regione": "toscana",
       "area": "centro",
       "tipo_comune": "grande",
-      "eur_mq": 9.9
+      "eur_mq_medio": 11.2,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.907 del centro"
     },
     {
       "codice": "LO",
@@ -397,7 +514,9 @@
       "regione": "lombardia",
       "area": "nord",
       "tipo_comune": "piccolo",
-      "eur_mq": 9.9
+      "eur_mq_medio": 11.6,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.94 del nord"
     },
     {
       "codice": "LU",
@@ -405,7 +524,10 @@
       "regione": "toscana",
       "area": "centro",
       "tipo_comune": "grande",
-      "eur_mq": 11.5
+      "eur_mq_medio": 13,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.907 del centro",
+      "avvertenza_turistica": "La media dell'intera provincia è 28.8 €/m², tra le più alte d'Italia, ma è trainata da Versilia e Forte dei Marmi: non descrive il capoluogo. Qui usiamo il valore calibrato."
     },
     {
       "codice": "MC",
@@ -413,7 +535,9 @@
       "regione": "marche",
       "area": "centro",
       "tipo_comune": "grande",
-      "eur_mq": 7.9
+      "eur_mq_medio": 9,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.907 del centro"
     },
     {
       "codice": "MN",
@@ -421,7 +545,9 @@
       "regione": "lombardia",
       "area": "nord",
       "tipo_comune": "grande",
-      "eur_mq": 8.9
+      "eur_mq_medio": 10.5,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.94 del nord"
     },
     {
       "codice": "MS",
@@ -429,7 +555,9 @@
       "regione": "toscana",
       "area": "centro",
       "tipo_comune": "grande",
-      "eur_mq": 8.5
+      "eur_mq_medio": 9.6,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.907 del centro"
     },
     {
       "codice": "MT",
@@ -437,7 +565,9 @@
       "regione": "basilicata",
       "area": "mezzogiorno",
       "tipo_comune": "grande",
-      "eur_mq": 6.3
+      "eur_mq_medio": 6.6,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.836 del mezzogiorno"
     },
     {
       "codice": "ME",
@@ -445,7 +575,9 @@
       "regione": "sicilia",
       "area": "mezzogiorno",
       "tipo_comune": "metropoli",
-      "eur_mq": 7.5
+      "eur_mq_medio": 7.8,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.836 del mezzogiorno"
     },
     {
       "codice": "MI",
@@ -453,7 +585,9 @@
       "regione": "lombardia",
       "area": "nord",
       "tipo_comune": "metropoli",
-      "eur_mq": 18.8
+      "eur_mq_medio": 23.3,
+      "fonte_dato": "rilevato_capoluogo",
+      "rilevazione": "idealista, II trim. 2026"
     },
     {
       "codice": "MO",
@@ -461,7 +595,9 @@
       "regione": "emilia-romagna",
       "area": "nord",
       "tipo_comune": "grande",
-      "eur_mq": 11.3
+      "eur_mq_medio": 13.3,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.94 del nord"
     },
     {
       "codice": "MB",
@@ -469,7 +605,9 @@
       "regione": "lombardia",
       "area": "nord",
       "tipo_comune": "grande",
-      "eur_mq": 14.3
+      "eur_mq_medio": 16.8,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.94 del nord"
     },
     {
       "codice": "NA",
@@ -477,7 +615,9 @@
       "regione": "campania",
       "area": "mezzogiorno",
       "tipo_comune": "metropoli",
-      "eur_mq": 9.9
+      "eur_mq_medio": 10.3,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.836 del mezzogiorno"
     },
     {
       "codice": "NO",
@@ -485,7 +625,9 @@
       "regione": "piemonte",
       "area": "nord",
       "tipo_comune": "grande",
-      "eur_mq": 8.7
+      "eur_mq_medio": 10.2,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.94 del nord"
     },
     {
       "codice": "NU",
@@ -493,7 +635,9 @@
       "regione": "sardegna",
       "area": "mezzogiorno",
       "tipo_comune": "piccolo",
-      "eur_mq": 6.9
+      "eur_mq_medio": 7.2,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.836 del mezzogiorno"
     },
     {
       "codice": "OR",
@@ -501,7 +645,9 @@
       "regione": "sardegna",
       "area": "mezzogiorno",
       "tipo_comune": "piccolo",
-      "eur_mq": 6.3
+      "eur_mq_medio": 6.6,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.836 del mezzogiorno"
     },
     {
       "codice": "PD",
@@ -509,7 +655,9 @@
       "regione": "veneto",
       "area": "nord",
       "tipo_comune": "grande",
-      "eur_mq": 12.9
+      "eur_mq_medio": 15.2,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.94 del nord"
     },
     {
       "codice": "PA",
@@ -517,7 +665,9 @@
       "regione": "sicilia",
       "area": "mezzogiorno",
       "tipo_comune": "metropoli",
-      "eur_mq": 8.5
+      "eur_mq_medio": 10.1,
+      "fonte_dato": "rilevato_capoluogo",
+      "rilevazione": "idealista, II trim. 2026"
     },
     {
       "codice": "PR",
@@ -525,7 +675,9 @@
       "regione": "emilia-romagna",
       "area": "nord",
       "tipo_comune": "grande",
-      "eur_mq": 11.3
+      "eur_mq_medio": 13.3,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.94 del nord"
     },
     {
       "codice": "PV",
@@ -533,7 +685,9 @@
       "regione": "lombardia",
       "area": "nord",
       "tipo_comune": "grande",
-      "eur_mq": 10.3
+      "eur_mq_medio": 12.1,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.94 del nord"
     },
     {
       "codice": "PG",
@@ -541,7 +695,9 @@
       "regione": "umbria",
       "area": "centro",
       "tipo_comune": "grande",
-      "eur_mq": 9.1
+      "eur_mq_medio": 10.3,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.907 del centro"
     },
     {
       "codice": "PU",
@@ -549,7 +705,9 @@
       "regione": "marche",
       "area": "centro",
       "tipo_comune": "grande",
-      "eur_mq": 8.7
+      "eur_mq_medio": 9.9,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.907 del centro"
     },
     {
       "codice": "PE",
@@ -557,7 +715,9 @@
       "regione": "abruzzo",
       "area": "mezzogiorno",
       "tipo_comune": "grande",
-      "eur_mq": 8.9
+      "eur_mq_medio": 9.3,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.836 del mezzogiorno"
     },
     {
       "codice": "PC",
@@ -565,7 +725,9 @@
       "regione": "emilia-romagna",
       "area": "nord",
       "tipo_comune": "grande",
-      "eur_mq": 9.9
+      "eur_mq_medio": 9.2,
+      "fonte_dato": "rilevato_provincia",
+      "rilevazione": "idealista, I trim. 2026"
     },
     {
       "codice": "PI",
@@ -573,7 +735,9 @@
       "regione": "toscana",
       "area": "centro",
       "tipo_comune": "grande",
-      "eur_mq": 11.3
+      "eur_mq_medio": 12.3,
+      "fonte_dato": "rilevato_provincia",
+      "rilevazione": "idealista, I trim. 2026"
     },
     {
       "codice": "PT",
@@ -581,7 +745,9 @@
       "regione": "toscana",
       "area": "centro",
       "tipo_comune": "grande",
-      "eur_mq": 10.3
+      "eur_mq_medio": 11.7,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.907 del centro"
     },
     {
       "codice": "PN",
@@ -589,7 +755,9 @@
       "regione": "friuli-venezia-giulia",
       "area": "nord",
       "tipo_comune": "grande",
-      "eur_mq": 8.7
+      "eur_mq_medio": 10.2,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.94 del nord"
     },
     {
       "codice": "PZ",
@@ -597,7 +765,9 @@
       "regione": "basilicata",
       "area": "mezzogiorno",
       "tipo_comune": "grande",
-      "eur_mq": 6.5
+      "eur_mq_medio": 6,
+      "fonte_dato": "rilevato_provincia",
+      "rilevazione": "idealista, I trim. 2026"
     },
     {
       "codice": "PO",
@@ -605,7 +775,9 @@
       "regione": "toscana",
       "area": "centro",
       "tipo_comune": "grande",
-      "eur_mq": 10.7
+      "eur_mq_medio": 12.1,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.907 del centro"
     },
     {
       "codice": "RG",
@@ -613,7 +785,9 @@
       "regione": "sicilia",
       "area": "mezzogiorno",
       "tipo_comune": "grande",
-      "eur_mq": 6.3
+      "eur_mq_medio": 6.6,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.836 del mezzogiorno"
     },
     {
       "codice": "RA",
@@ -621,7 +795,9 @@
       "regione": "emilia-romagna",
       "area": "nord",
       "tipo_comune": "grande",
-      "eur_mq": 10.7
+      "eur_mq_medio": 12.6,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.94 del nord"
     },
     {
       "codice": "RC",
@@ -629,7 +805,9 @@
       "regione": "calabria",
       "area": "mezzogiorno",
       "tipo_comune": "metropoli",
-      "eur_mq": 6.7
+      "eur_mq_medio": 6.1,
+      "fonte_dato": "rilevato_capoluogo",
+      "rilevazione": "idealista, II trim. 2026"
     },
     {
       "codice": "RE",
@@ -637,7 +815,9 @@
       "regione": "emilia-romagna",
       "area": "nord",
       "tipo_comune": "grande",
-      "eur_mq": 10.9
+      "eur_mq_medio": 12.8,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.94 del nord"
     },
     {
       "codice": "RI",
@@ -645,7 +825,9 @@
       "regione": "lazio",
       "area": "centro",
       "tipo_comune": "piccolo",
-      "eur_mq": 7.5
+      "eur_mq_medio": 8.5,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.907 del centro"
     },
     {
       "codice": "RN",
@@ -653,7 +835,9 @@
       "regione": "emilia-romagna",
       "area": "nord",
       "tipo_comune": "grande",
-      "eur_mq": 11.1
+      "eur_mq_medio": 13,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.94 del nord"
     },
     {
       "codice": "RM",
@@ -661,7 +845,9 @@
       "regione": "lazio",
       "area": "centro",
       "tipo_comune": "metropoli",
-      "eur_mq": 16.8
+      "eur_mq_medio": 19.8,
+      "fonte_dato": "rilevato_capoluogo",
+      "rilevazione": "idealista, II trim. 2026"
     },
     {
       "codice": "RO",
@@ -669,7 +855,9 @@
       "regione": "veneto",
       "area": "nord",
       "tipo_comune": "grande",
-      "eur_mq": 7.5
+      "eur_mq_medio": 8.8,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.94 del nord"
     },
     {
       "codice": "SA",
@@ -677,7 +865,9 @@
       "regione": "campania",
       "area": "mezzogiorno",
       "tipo_comune": "grande",
-      "eur_mq": 8.3
+      "eur_mq_medio": 8.7,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.836 del mezzogiorno"
     },
     {
       "codice": "SS",
@@ -685,7 +875,9 @@
       "regione": "sardegna",
       "area": "mezzogiorno",
       "tipo_comune": "grande",
-      "eur_mq": 7.9
+      "eur_mq_medio": 8.3,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.836 del mezzogiorno"
     },
     {
       "codice": "SV",
@@ -693,7 +885,9 @@
       "regione": "liguria",
       "area": "nord",
       "tipo_comune": "grande",
-      "eur_mq": 10.7
+      "eur_mq_medio": 12.6,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.94 del nord"
     },
     {
       "codice": "SI",
@@ -701,7 +895,9 @@
       "regione": "toscana",
       "area": "centro",
       "tipo_comune": "grande",
-      "eur_mq": 11.1
+      "eur_mq_medio": 12.6,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.907 del centro"
     },
     {
       "codice": "SR",
@@ -709,7 +905,9 @@
       "regione": "sicilia",
       "area": "mezzogiorno",
       "tipo_comune": "grande",
-      "eur_mq": 6.7
+      "eur_mq_medio": 7,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.836 del mezzogiorno"
     },
     {
       "codice": "SO",
@@ -717,7 +915,10 @@
       "regione": "lombardia",
       "area": "nord",
       "tipo_comune": "piccolo",
-      "eur_mq": 8.5
+      "eur_mq_medio": 10,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.94 del nord",
+      "avvertenza_turistica": "La media dell'intera provincia è 18.2 €/m², tra le più alte d'Italia, ma è trainata da Livigno e Bormio: non descrive il capoluogo. Qui usiamo il valore calibrato."
     },
     {
       "codice": "SU",
@@ -725,7 +926,9 @@
       "regione": "sardegna",
       "area": "mezzogiorno",
       "tipo_comune": "piccolo",
-      "eur_mq": 6.3
+      "eur_mq_medio": 6.6,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.836 del mezzogiorno"
     },
     {
       "codice": "TA",
@@ -733,7 +936,9 @@
       "regione": "puglia",
       "area": "mezzogiorno",
       "tipo_comune": "grande",
-      "eur_mq": 6.5
+      "eur_mq_medio": 6.8,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.836 del mezzogiorno"
     },
     {
       "codice": "TE",
@@ -741,7 +946,9 @@
       "regione": "abruzzo",
       "area": "mezzogiorno",
       "tipo_comune": "grande",
-      "eur_mq": 7.5
+      "eur_mq_medio": 7.8,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.836 del mezzogiorno"
     },
     {
       "codice": "TR",
@@ -749,7 +956,9 @@
       "regione": "umbria",
       "area": "centro",
       "tipo_comune": "grande",
-      "eur_mq": 7.5
+      "eur_mq_medio": 8.5,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.907 del centro"
     },
     {
       "codice": "TO",
@@ -757,7 +966,9 @@
       "regione": "piemonte",
       "area": "nord",
       "tipo_comune": "metropoli",
-      "eur_mq": 11.1
+      "eur_mq_medio": 12.8,
+      "fonte_dato": "rilevato_capoluogo",
+      "rilevazione": "idealista, II trim. 2026"
     },
     {
       "codice": "TP",
@@ -765,7 +976,9 @@
       "regione": "sicilia",
       "area": "mezzogiorno",
       "tipo_comune": "grande",
-      "eur_mq": 6.1
+      "eur_mq_medio": 7.9,
+      "fonte_dato": "rilevato_capoluogo",
+      "rilevazione": "idealista, II trim. 2026"
     },
     {
       "codice": "TN",
@@ -773,7 +986,9 @@
       "regione": "trentino-alto-adige",
       "area": "nord",
       "tipo_comune": "grande",
-      "eur_mq": 14.3
+      "eur_mq_medio": 13,
+      "fonte_dato": "rilevato_capoluogo",
+      "rilevazione": "idealista, II trim. 2026"
     },
     {
       "codice": "TV",
@@ -781,7 +996,9 @@
       "regione": "veneto",
       "area": "nord",
       "tipo_comune": "grande",
-      "eur_mq": 10.5
+      "eur_mq_medio": 12.3,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.94 del nord"
     },
     {
       "codice": "TS",
@@ -789,7 +1006,9 @@
       "regione": "friuli-venezia-giulia",
       "area": "nord",
       "tipo_comune": "grande",
-      "eur_mq": 10.3
+      "eur_mq_medio": 13.1,
+      "fonte_dato": "rilevato_provincia",
+      "rilevazione": "idealista, I trim. 2026"
     },
     {
       "codice": "UD",
@@ -797,7 +1016,9 @@
       "regione": "friuli-venezia-giulia",
       "area": "nord",
       "tipo_comune": "grande",
-      "eur_mq": 8.9
+      "eur_mq_medio": 10.5,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.94 del nord"
     },
     {
       "codice": "VA",
@@ -805,7 +1026,9 @@
       "regione": "lombardia",
       "area": "nord",
       "tipo_comune": "grande",
-      "eur_mq": 10.5
+      "eur_mq_medio": 12.3,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.94 del nord"
     },
     {
       "codice": "VE",
@@ -813,7 +1036,9 @@
       "regione": "veneto",
       "area": "nord",
       "tipo_comune": "metropoli",
-      "eur_mq": 15.5
+      "eur_mq_medio": 21.7,
+      "fonte_dato": "rilevato_capoluogo",
+      "rilevazione": "idealista, II trim. 2026"
     },
     {
       "codice": "VB",
@@ -821,7 +1046,9 @@
       "regione": "piemonte",
       "area": "nord",
       "tipo_comune": "piccolo",
-      "eur_mq": 7.3
+      "eur_mq_medio": 8.6,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.94 del nord"
     },
     {
       "codice": "VC",
@@ -829,7 +1056,9 @@
       "regione": "piemonte",
       "area": "nord",
       "tipo_comune": "piccolo",
-      "eur_mq": 7.5
+      "eur_mq_medio": 8.8,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.94 del nord"
     },
     {
       "codice": "VR",
@@ -837,7 +1066,9 @@
       "regione": "veneto",
       "area": "nord",
       "tipo_comune": "grande",
-      "eur_mq": 12.9
+      "eur_mq_medio": 15.2,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.94 del nord"
     },
     {
       "codice": "VV",
@@ -845,7 +1076,9 @@
       "regione": "calabria",
       "area": "mezzogiorno",
       "tipo_comune": "piccolo",
-      "eur_mq": 5.9
+      "eur_mq_medio": 6.2,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.836 del mezzogiorno"
     },
     {
       "codice": "VI",
@@ -853,7 +1086,9 @@
       "regione": "veneto",
       "area": "nord",
       "tipo_comune": "grande",
-      "eur_mq": 11.5
+      "eur_mq_medio": 13.5,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.94 del nord"
     },
     {
       "codice": "VT",
@@ -861,7 +1096,9 @@
       "regione": "lazio",
       "area": "centro",
       "tipo_comune": "grande",
-      "eur_mq": 8.3
+      "eur_mq_medio": 9.4,
+      "fonte_dato": "calibrato",
+      "rilevazione": "stima v1 ricalibrata sul fattore 0.907 del centro"
     }
   ]
 }

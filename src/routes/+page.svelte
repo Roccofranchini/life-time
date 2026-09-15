@@ -11,7 +11,7 @@
   import Numero from '$lib/components/Numero.svelte';
   import Aiuti from '$lib/components/Aiuti.svelte';
   import Metodo from '$lib/components/Metodo.svelte';
-  import { calcola, prezzoInOre } from '$lib/engine';
+  import { calcola, eurMqPeriferia, prezzoInOre } from '$lib/engine';
   import {
     PROVINCE,
     SETTORI,
@@ -295,7 +295,7 @@
               <li>
                 <button type="button" onclick={() => scegliProvincia(p.codice, p.nome)}>
                   <span>{p.nome}</span>
-                  <span class="hint">{p.eur_mq} €/m² · {p.tipo_comune}</span>
+                  <span class="hint">{eurMqPeriferia(p).toFixed(1)} €/m² · {p.tipo_comune}</span>
                 </button>
               </li>
             {/each}
@@ -565,8 +565,11 @@
       <li>
         <span class="costi-v">{eur(r.sopravvivenza.affitto)} €</span>
         <span class="costi-l">
-          affitto — {r.sopravvivenza.affitto_mq} m² a {provincia.eur_mq} €/m²
+          affitto — {r.sopravvivenza.affitto_mq} m² a {eurMqPeriferia(provincia).toFixed(1)} €/m²
           {#if r.sopravvivenza.affitto_persone > 1}, diviso {r.sopravvivenza.affitto_persone}{/if}
+          <span class="provenienza" class:stimato={provincia.fonte_dato === 'calibrato'}>
+            {provincia.fonte_dato === 'calibrato' ? 'stimato' : 'rilevato'}
+          </span>
         </span>
         <span class="costi-o">{ore(r.sopravvivenza.affitto / r.tempo.salario_orario_reale)}</span>
       </li>
@@ -592,6 +595,14 @@
         <span class="costi-o">—</span>
       </li>
     </ul>
+    {#if provincia.fonte_dato === 'calibrato'}
+      <p class="nota-dato">
+        Per {provincia.nome} non esiste una rilevazione pubblica del canone che siamo riusciti a
+        verificare: questo valore è una stima riscalata sulle province della stessa ripartizione
+        dove la rilevazione c'è. Prendilo come ordine di grandezza.
+        {#if provincia.avvertenza_turistica}<br />{provincia.avvertenza_turistica}{/if}
+      </p>
+    {/if}
     <p class="chiosa">
       La soglia di povertà assoluta ISTAT per un adulto solo dalle tue parti è
       <strong>{eur(r.sopravvivenza.soglia_istat)} €</strong> al mese.
@@ -970,6 +981,29 @@
   .costi li.fuori .costi-v {
     font-size: 16px;
     color: var(--tdv-ink3);
+  }
+  .provenienza {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 5px;
+    border: 1px solid var(--tdv-dato-4);
+    color: var(--tdv-dato-4);
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .provenienza.stimato {
+    border-color: var(--tdv-dato-3);
+    color: var(--tdv-dato-3);
+  }
+  .nota-dato {
+    margin-top: 18px;
+    padding-left: 12px;
+    border-left: 2px solid var(--tdv-dato-3);
+    font-size: 11px;
+    line-height: 1.8;
+    color: var(--tdv-ink2);
+    max-width: 74ch;
   }
   .costi-l em {
     color: var(--tdv-ink2);

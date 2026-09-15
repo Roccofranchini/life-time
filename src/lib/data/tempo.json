@@ -1,7 +1,6 @@
 {
   "aggiornato": "2026-09-10",
   "nota": "Costanti temporali e panieri. Ogni numero ha una fonte e un anno. Dove la cifra è una convenzione e non un dato, il campo 'tipo' dice 'convenzione'.",
-
   "mese": {
     "ore_totali": 730,
     "giorni": 30.44,
@@ -9,52 +8,84 @@
     "tipo": "convenzione",
     "nota": "730 h = 24 × 365,25 / 12. I giorni lavorativi sono 260 all'anno (52 settimane × 5) diviso 12."
   },
-
   "sonno": {
     "ore_giorno": 8.0,
     "fonte": "ISTAT, Indagine Uso del tempo — voce 'dormire' dentro la cura personale (48,7% della giornata media, che comprende sonno, pasti e igiene).",
     "url": "https://www.istat.it/informazioni-sulla-rilevazione/multiscopo-sulle-famiglie-uso-del-tempo-4/",
     "tipo": "stima da fonte"
   },
-
   "cura_personale": {
     "ore_giorno": 2.5,
     "descrizione": "Pasti, igiene, cura di sé — al netto del sonno.",
     "fonte": "ISTAT, Uso del tempo: cura personale complessiva ~11,7 h/giorno, di cui ~8 h di sonno.",
     "tipo": "stima da fonte"
   },
-
   "lavoro_familiare": {
     "descrizione": "Lavoro domestico, di cura e acquisti. È lavoro non retribuito, non tempo libero.",
     "fonte": "ISTAT, Rapporto Annuale 2026 su dati Uso del tempo 2023 — persone occupate.",
     "url": "https://www.istat.it/informazioni-sulla-rilevazione/multiscopo-sulle-famiglie-uso-del-tempo-4/",
     "profili": {
-      "uomo_occupato": { "ore_giorno": 1.8, "etichetta": "1h 48m — media uomini occupati" },
-      "donna_occupata": { "ore_giorno": 4.17, "etichetta": "4h 10m — media donne occupate" },
-      "media": { "ore_giorno": 3.0, "etichetta": "3h — media delle persone occupate" }
+      "uomo_occupato": {
+        "ore_giorno": 1.8,
+        "etichetta": "1h 48m — media uomini occupati"
+      },
+      "donna_occupata": {
+        "ore_giorno": 4.17,
+        "etichetta": "4h 10m — media donne occupate"
+      },
+      "media": {
+        "ore_giorno": 3.0,
+        "etichetta": "3h — media delle persone occupate"
+      }
     },
     "divario": "2h 22m al giorno a parità di impegno professionale: circa 72 ore al mese di lavoro non pagato in più a carico delle donne occupate."
   },
-
   "pendolarismo": {
     "minuti_giorno_lavorativo": 60,
     "fonte": "ISTAT, spostamenti quotidiani per motivi di lavoro: ~34 minuti per tratta, ~68 minuti andata e ritorno. Il modello usa 60 minuti, valore conservativo.",
     "url": "https://www.istat.it/it/files/2014/08/Pendolarismo.pdf",
     "tipo": "stima da fonte",
-    "opzioni_minuti": [0, 20, 40, 60, 90, 120]
-  },
-
-  "alloggi": {
-    "descrizione": "Superfici convenzionali usate per derivare il canone da €/m². La quota a carico della persona dipende da con quante persone si divide l'affitto.",
-    "fonte": "Superfici medie del mercato residenziale italiano (OMI, classi di superficie).",
-    "tipi": [
-      { "id": "stanza", "nome": "Una stanza in casa condivisa", "mq": 85, "quota_persone": 3 },
-      { "id": "monolocale", "nome": "Monolocale, da solo/a", "mq": 38, "quota_persone": 1 },
-      { "id": "bilocale", "nome": "Bilocale, da solo/a", "mq": 55, "quota_persone": 1 },
-      { "id": "coppia", "nome": "Bilocale, in due", "mq": 60, "quota_persone": 2 }
+    "opzioni_minuti": [
+      0,
+      20,
+      40,
+      60,
+      90,
+      120
     ]
   },
-
+  "alloggi": {
+    "descrizione": "Superfici convenzionali e coefficiente di periferia usati per derivare il canone dal €/m² medio. La quota a carico della persona dipende da con quante persone si divide l'affitto.",
+    "fonte": "Superfici medie del mercato residenziale italiano (OMI, classi di superficie).",
+    "tipi": [
+      {
+        "id": "stanza",
+        "nome": "Una stanza in casa condivisa",
+        "mq": 85,
+        "quota_persone": 3
+      },
+      {
+        "id": "monolocale",
+        "nome": "Monolocale, da solo/a",
+        "mq": 38,
+        "quota_persone": 1
+      },
+      {
+        "id": "bilocale",
+        "nome": "Bilocale, da solo/a",
+        "mq": 55,
+        "quota_persone": 1
+      },
+      {
+        "id": "coppia",
+        "nome": "Bilocale, in due",
+        "mq": 60,
+        "quota_persone": 2
+      }
+    ],
+    "coefficiente_periferia": 0.8,
+    "nota_periferia": "I canoni rilevati sono medie dell'intero mercato locale, centro compreso. Chi cerca casa con uno stipendio da minimo contrattuale non guarda il centro: applichiamo l'80%, che è lo scarto osservato fra media cittadina e fasce periferiche nelle grandi città (Milano 18,8 su 23,3; Bologna 14,0 su 17,5; Roma 15,8 su 19,8). È una convenzione dichiarata, discutibile e modificabile qui: non è un dato rilevato."
+  },
   "soglia_poverta_assoluta": {
     "descrizione": "Spesa mensile minima per un paniere di beni e servizi essenziali per una persona adulta sola (18-59 anni). È la linea ufficiale sotto la quale ISTAT dichiara una persona in povertà assoluta.",
     "fonte": "ISTAT, La povertà in Italia — Anno 2024 (pubblicato 14 ottobre 2025). Valori ancorati a due soglie pubblicate: 916,98 €/mese al centro di un'area metropolitana del Nord (Piemonte) e 760,22 €/mese al centro di un'area metropolitana in Sicilia.",
@@ -63,14 +94,25 @@
     "tipo": "ricostruzione ancorata a valori pubblicati",
     "avvertenza": "I due valori pubblicati fissano gli estremi; le celle intermedie sono interpolate secondo il differenziale ISTAT per ampiezza del comune. Per il valore esatto del proprio caso va usato il calcolatore ufficiale ISTAT, linkato sopra.",
     "valori": {
-      "nord":        { "metropoli": 917, "grande": 880, "piccolo": 838 },
-      "centro":      { "metropoli": 880, "grande": 845, "piccolo": 805 },
-      "mezzogiorno": { "metropoli": 760, "grande": 730, "piccolo": 695 }
+      "nord": {
+        "metropoli": 917,
+        "grande": 880,
+        "piccolo": 838
+      },
+      "centro": {
+        "metropoli": 880,
+        "grande": 845,
+        "piccolo": 805
+      },
+      "mezzogiorno": {
+        "metropoli": 760,
+        "grande": 730,
+        "piccolo": 695
+      }
     },
     "quota_non_abitativa": 0.62,
     "nota_quota": "Nel paniere ISTAT per un adulto solo la componente abitativa (affitto + utenze) pesa circa il 38%. Il modello somma il canone di mercato effettivo al restante 62% del paniere (alimentari, trasporto, salute, igiene, vestiario, comunicazioni). È un'assunzione dichiarata, non un dato ISTAT."
   },
-
   "costi_del_lavoro": {
     "descrizione": "Spese che esistono solo perché lavori. Si sottraggono dal netto nel calcolo del salario orario reale.",
     "abbonamento_tpl_mese": 35,
@@ -80,7 +122,6 @@
     "fonte": "Abbonamenti urbani mensili medi dei capoluoghi; costo chilometrico ACI per utilitaria (carburante, manutenzione, assicurazione, ammortamento); prezzo medio di un pasto di lavoro.",
     "url": "https://www.aci.it/i-servizi/servizi-online/costi-chilometrici.html"
   },
-
   "salario_orario_reale": {
     "fonte": "Vicki Robin e Joe Dominguez, «Your Money or Your Life» (1992) — real hourly wage: il salario orario ha senso solo al netto del tempo e dei costi che il lavoro impone.",
     "formula": "(netto mensile − costi imposti dal lavoro) / (ore retribuite + pendolarismo + straordinario non pagato)"

@@ -75,17 +75,68 @@ questo l'app ha l'inserimento diretto del proprio lordo, che è sempre più prec
 - **Ripartizioni geografiche**: ISTAT (nord / centro / mezzogiorno)
 - **Città metropolitane**: L. 56/2014 (14 comuni)
 - **Ampiezza del comune**: metropoli / grande (≥ 50.000 ab.) / piccolo
-- **Canoni**: €/m² stimati per la periferia del capoluogo, ricostruiti da quotazioni OMI e
-  rilevazioni idealista/Immobiliare.it, aggiornati all'indice dei canoni Q2 2026 (+9% sul 2024)
+- **Canoni**: `eur_mq_medio`, canone medio di mercato al metro quadro — **la parte meno
+  solida del modello, vedi sotto**
 
-Il file **non contiene canoni mensili**. Contiene €/m². Il canone è sempre
-`€/m² × superficie ÷ persone`, dove le superfici stanno in `tempo.json`. Due grandezze
-pubblicate e un'operazione: chiunque può rifare il conto e contestarlo, che è il punto.
+Il file **non contiene canoni mensili**. Il canone è sempre
+`eur_mq_medio × coefficiente di periferia × superficie ÷ persone`, con coefficiente e
+superfici in `tempo.json`. Il *calcolo* è quindi ispezionabile in ogni fattore.
 
-Riferimenti di controllo a Q2 2026: Milano 23,3 €/m² di media cittadina, Roma 19,2,
-Bologna 17,3, Napoli 15,5. I valori del file sono i corrispondenti di periferia.
+### Provenienza dei canoni: 19 province rilevate, 88 calibrate
 
----
+I canoni sono la parte meno solida del modello, e il file lo dichiara riga per riga nel campo
+`fonte_dato`:
+
+| Valore | Significato | Province |
+|---|---|---|
+| `rilevato_capoluogo` | rilevazione idealista riferita al capoluogo | 11 |
+| `rilevato_provincia` | rilevazione provinciale, usata come proxy dove non c'è distorsione turistica | 8 |
+| `calibrato` | **non rilevato**: stima riscalata sugli ancoraggi della stessa ripartizione | 88 |
+
+**Ancoraggi rilevati** (idealista 2026, €/m² medi di mercato, centro compreso):
+Milano 23,3 · Firenze 22,3 · Venezia 21,7 · Roma 19,8 · Bologna 17,5 · Trieste 13,1 ·
+Trento 13,0 · Torino 12,8 · Pisa 12,3 · Ancona 10,4 · Palermo 10,1 · Piacenza 9,2 ·
+Catania 8,9 · Trapani 7,9 · Enna 7,0 · Avellino 6,3 · Reggio Calabria 6,1 · Potenza 6,0 ·
+Caltanissetta 5,6. Media nazionale II trimestre 2026: **15,4 €/m²**, massimo dal 2012.
+
+### Quanto sbagliavano le stime precedenti
+
+Confrontando gli ancoraggi con le stime della v1 è emerso un errore **sistematico e
+asimmetrico**: le stime erano gonfiate ovunque, ma molto più al Sud.
+
+| Ripartizione | Fattore di correzione | Ancoraggi |
+|---|---|---|
+| Nord | 0,940 | 7 |
+| Centro | 0,907 | 4 |
+| Mezzogiorno | 0,836 | 8 |
+
+Le 88 province non rilevate sono state riscalate con la mediana dei rapporti della propria
+ripartizione. Il loro *ordine relativo* viene ancora dalla v1 e non è verificato: sono un
+ordine di grandezza, e l'app lo scrive accanto al canone con l'etichetta «stimato».
+
+### Le medie provinciali che non vanno usate
+
+Cinque province hanno una media provinciale fra le più alte d'Italia perché trainata da
+località turistiche, e **non descrive il capoluogo**: Belluno 31,4 €/m² (Cortina), Lucca 28,8
+(Versilia), Aosta 24,1 (Courmayeur), Grosseto 21,0 (Argentario), Sondrio 18,2 (Livigno).
+Sono escluse dagli ancoraggi e portano un campo `avvertenza_turistica` che spiega all'utente
+perché il numero che legge altrove è molto più alto.
+
+### Media di mercato e periferia sono due cose diverse
+
+Il file contiene `eur_mq_medio`, cioè la media dell'intero mercato locale, **centro compreso**.
+Chi cerca casa con uno stipendio da minimo contrattuale non guarda il centro: il motore
+applica un `coefficiente_periferia` dell'**80%**, che sta in `tempo.json` ed è una convenzione
+dichiarata, non un dato. Corrisponde allo scarto osservato nelle grandi città fra media
+cittadina e fasce periferiche. È il primo numero da contestare se il risultato non convince.
+
+### Come si sistema davvero
+
+Una cosa sola: estrarre le quotazioni OMI per zona periferica (fascia B2, stato conservativo
+«normale») dalla [Banca Dati Quotazioni Immobiliari](https://www.agenziaentrate.gov.it/portale/schede/fabbricatiterreni/omi),
+che è pubblica e scaricabile, e sostituire `eur_mq_medio` provincia per provincia citando
+semestre e codice zona. Porterebbe i rilevati da 19 a 107 ed eliminerebbe sia la calibrazione
+sia il coefficiente di periferia, che diventerebbe una misura invece che una convenzione.
 
 ## 4. Tempo e soglie — `src/lib/data/tempo.json`
 

@@ -3,8 +3,10 @@ import { describe, it, expect } from 'vitest';
 import {
   calcolaSopravvivenza,
   canoneMensile,
+  eurMqPeriferia,
   sogliaIstat
 } from '../../src/lib/engine/sopravvivenza';
+import tempo from '../../src/lib/data/tempo.json';
 import provinceData from '../../src/lib/data/province.json';
 import type { AlloggioId, ProvinciaEntry } from '../../src/lib/types';
 
@@ -25,9 +27,38 @@ const ctx = {
 };
 
 describe('Canone derivato, non scritto a mano', () => {
-  it('canone = €/m² × superficie / persone che se lo dividono', () => {
-    expect(canoneMensile(MI, 'bilocale')).toBeCloseTo(MI.eur_mq * 55, 6);
-    expect(canoneMensile(MI, 'stanza')).toBeCloseTo((MI.eur_mq * 85) / 3, 6);
+  it('canone = €/m² di periferia × superficie / persone che se lo dividono', () => {
+    expect(canoneMensile(MI, 'bilocale')).toBeCloseTo(eurMqPeriferia(MI) * 55, 6);
+    expect(canoneMensile(MI, 'stanza')).toBeCloseTo((eurMqPeriferia(MI) * 85) / 3, 6);
+  });
+
+  it('la periferia è la media di mercato scontata del coefficiente dichiarato', () => {
+    const c = tempo.alloggi.coefficiente_periferia;
+    expect(c).toBeGreaterThan(0.5);
+    expect(c).toBeLessThan(1);
+    expect(eurMqPeriferia(MI)).toBeCloseTo(MI.eur_mq_medio * c, 6);
+    // la periferia costa sempre meno della media che comprende il centro
+    for (const p of PROVINCE) expect(eurMqPeriferia(p)).toBeLessThan(p.eur_mq_medio);
+  });
+
+  it('gli ancoraggi rilevati portano i valori pubblicati, non stime', () => {
+    // idealista II trim. 2026: Milano 23,3 · Roma 19,8 · Bologna 17,5
+    expect(MI.eur_mq_medio).toBe(23.3);
+    expect(trova('RM').eur_mq_medio).toBe(19.8);
+    expect(BO.eur_mq_medio).toBe(17.5);
+    for (const cod of ['MI', 'RM', 'BO', 'FI', 'TO', 'PA']) {
+      expect(trova(cod).fonte_dato).toBe('rilevato_capoluogo');
+    }
+  });
+
+  it('ogni provincia dichiara se il canone è rilevato o stimato', () => {
+    const ammessi = ['rilevato_capoluogo', 'rilevato_provincia', 'calibrato'];
+    for (const p of PROVINCE) {
+      expect(ammessi).toContain(p.fonte_dato);
+      expect(p.rilevazione.length).toBeGreaterThan(5);
+    }
+    const rilevati = PROVINCE.filter((p) => p.fonte_dato !== 'calibrato');
+    expect(rilevati.length).toBeGreaterThanOrEqual(19);
   });
 
   it('una stanza condivisa costa molto meno di un bilocale da soli', () => {
@@ -43,7 +74,7 @@ describe('Canone derivato, non scritto a mano', () => {
   it('tutte le 107 province hanno €/m², area e tipo comune', () => {
     expect(PROVINCE).toHaveLength(107);
     for (const p of PROVINCE) {
-      expect(p.eur_mq).toBeGreaterThan(0);
+      expect(p.eur_mq_medio).toBeGreaterThan(0);
       expect(['nord', 'centro', 'mezzogiorno']).toContain(p.area);
       expect(['metropoli', 'grande', 'piccolo']).toContain(p.tipo_comune);
     }
